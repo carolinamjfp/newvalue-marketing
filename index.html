@@ -2276,5 +2276,98 @@ buildRTE('rte-add-bar','rte-add-body','rte-add-cnt');
 buildRTE('rte-pm-bar','rte-pm-body','rte-pm-cnt');
 updOv();
 </script>
+  <script>
+// ======================
+// AUTO SAVE SYSTEM
+// ======================
+
+let ideas = JSON.parse(localStorage.getItem('ideas') || '[]');
+
+function saveIdeas() {
+  localStorage.setItem('ideas', JSON.stringify(ideas));
+}
+
+// salvar automaticamente enquanto digita
+function autoSave() {
+  const title = document.getElementById('idea-title')?.value;
+  const desc = document.getElementById('idea-desc')?.value;
+
+  if (!title && !desc) return;
+
+  // salva temporário
+  localStorage.setItem('draft_idea', JSON.stringify({ title, desc }));
+}
+
+// carregar draft quando abrir
+function loadDraft() {
+  const draft = JSON.parse(localStorage.getItem('draft_idea') || '{}');
+
+  if (draft.title) document.getElementById('idea-title').value = draft.title;
+  if (draft.desc) document.getElementById('idea-desc').value = draft.desc;
+}
+
+// salvar definitivo
+function addIdea() {
+  const title = document.getElementById('idea-title').value;
+  const desc = document.getElementById('idea-desc').value;
+
+  if (!title) return alert("Add a title");
+
+  ideas.push({ title, desc });
+  saveIdeas();
+
+  localStorage.removeItem('draft_idea'); // limpa rascunho
+
+  renderIdeas();
+
+  document.getElementById('idea-title').value = '';
+  document.getElementById('idea-desc').value = '';
+}
+
+// renderizar
+function renderIdeas() {
+  const container = document.getElementById('ideas-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  ideas.forEach((idea, index) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+
+    div.innerHTML = `
+      <b>${idea.title}</b>
+      <p>${idea.desc}</p>
+      <button onclick="deleteIdea(${index})">Delete</button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// deletar
+function deleteIdea(index) {
+  ideas.splice(index, 1);
+  saveIdeas();
+  renderIdeas();
+}
+
+// iniciar
+window.addEventListener('load', () => {
+  loadDraft();
+  renderIdeas();
+
+  // auto salvar enquanto digita
+  document.getElementById('idea-title')?.addEventListener('input', autoSave);
+  document.getElementById('idea-desc')?.addEventListener('input', autoSave);
+});
+</script>
 </body>
-</html>
+</html><div class="card">
+  <input id="idea-title" placeholder="Title">
+  <input id="idea-desc" placeholder="Description">
+  
+  <button onclick="addIdea()">Save Idea</button>
+
+  <div id="ideas-container"></div>
+</div>
