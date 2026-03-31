@@ -1,0 +1,2420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NVHR — Content Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --w:#fff;--bg:#f4f5f7;--bd:#dde1e9;--bdh:#b8c0ce;
+  --t1:#0e1b2e;--t2:#4a5568;--t3:#9aa3b0;
+  --navy:#0e1b2e;--navy2:#162540;--navy3:#1e3358;
+  --gold:#b8962e;--gold2:#d4af52;--gold3:#f0cc7a;
+  --goldbg:#fdf8ee;--goldbdr:#e8d48a;
+  --tba:#e8f5ec;--tbat:#1a6b35;
+  --ted:#eef2fb;--tedt:#1a3f7a;
+  --tco:#fdf8ee;--tcot:#7a4a10;
+  --ttr:#fdeef0;--ttrt:#7a1a28;
+  --tbe:#f0eafa;--tbet:#4a1a7a;
+  --pfb:#eef2fb;--pfbt:#1a3f7a;
+  --pig:#fdeef0;--pigt:#7a1a28;
+  --ptk:#fff0f6;--ptkt:#8b1a4a;
+  --pgg:#e8f5ec;--pggt:#1a6b35;
+  --pnd:#fdf8ee;--pndt:#7a4a10;
+  --pal:#f0eafa;--palt:#4a1a7a;
+  --font:'Plus Jakarta Sans',sans-serif;--r:10px;--rl:14px
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:230px 1fr;height:100vh;overflow:hidden}
+
+/* SIDEBAR — Navy brand */
+.sb{background:var(--navy);border-right:none;display:flex;flex-direction:column;overflow-y:auto}
+.sb-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo img{width:100%;max-width:130px;display:block;margin:0 auto 10px}
+.sb-tagline{font-size:10px;font-weight:500;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;text-align:center}
+.sb-sec{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:.1em;text-transform:uppercase;padding:18px 20px 5px}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:rgba(255,255,255,.55);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--font);position:relative;transition:all .15s;border-radius:0}
+.nav:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.06)}
+.nav.on{color:#fff;font-weight:500;background:rgba(184,150,46,.15)}
+.nav.on::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--gold);border-radius:0 3px 3px 0}
+.nav-ic{width:16px;text-align:center;opacity:.5;font-size:12px}
+.nav.on .nav-ic{opacity:1;color:var(--gold2)}
+.sb-foot{margin-top:auto;padding:14px 20px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-fl{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;font-weight:600}
+.ap-row{display:flex;gap:4px;flex-wrap:wrap}
+.ap{font-size:10px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-weight:500}
+
+/* MAIN */
+.main{overflow-y:auto;background:var(--bg)}
+.page{display:none;padding:30px 34px;animation:fi .14s ease;min-height:100%}
+.page.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.ph-t{font-size:21px;font-weight:600;letter-spacing:-.02em}
+.ph-s{font-size:12px;color:var(--t3);margin-top:3px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);font-size:12px;font-family:var(--font);font-weight:500;cursor:pointer;border:1px solid var(--bd);background:var(--w);color:var(--t2);transition:all .1s}
+.btn:hover{background:var(--bg);border-color:var(--bdh);color:var(--t1)}
+.btn-dk{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-dk:hover{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.btn-gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold2);color:#fff;border-color:var(--gold2)}
+.btn-sm{padding:5px 11px;font-size:11px}
+.btn-gr{background:var(--tba);color:var(--tbat);border-color:#c5e8d0}
+.btn-gr:hover{background:#d2f0de;color:#0f5228}
+
+/* CARDS */
+.card{background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);padding:18px 20px;margin-bottom:14px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-t{font-size:13px;font-weight:600}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);padding:15px 18px;border-top:3px solid var(--gold)}
+.stat-l{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-n{font-size:30px;font-weight:300;color:var(--navy);letter-spacing:-.03em;line-height:1}
+.stat-s{font-size:11px;color:var(--t3);margin-top:4px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.ri{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.ri:last-child{border-bottom:none}
+.ri-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ri-day{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;width:42px;flex-shrink:0;padding-top:3px}
+.ri-m{font-size:13px;font-weight:500;margin-bottom:1px}
+.ri-s{font-size:11px;color:var(--t3)}
+.ri-r{margin-left:auto;font-size:12px;font-weight:500;color:var(--t2)}
+.fn{margin-bottom:10px}
+.fn-top{display:flex;justify-content:space-between;margin-bottom:4px}
+.fn-n{font-size:12px;color:var(--t2)}
+.fn-v{font-size:12px;color:var(--t3);font-weight:500}
+.fn-bar{height:4px;background:var(--bg);border-radius:2px;overflow:hidden}
+.fn-f{height:100%;border-radius:2px}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;letter-spacing:.01em;white-space:nowrap}
+.t-ba{background:var(--tba);color:var(--tbat)}.t-ed{background:var(--ted);color:var(--tedt)}.t-co{background:var(--tco);color:var(--tcot)}.t-tr{background:var(--ttr);color:var(--ttrt)}.t-be{background:var(--tbe);color:var(--tbet)}
+.t-fb{background:var(--pfb);color:var(--pfbt)}.t-ig{background:var(--pig);color:var(--pigt)}.t-tk{background:var(--ptk);color:var(--ptkt)}.t-gg{background:var(--pgg);color:var(--pggt)}.t-nd{background:var(--pnd);color:var(--pndt)}.t-all{background:var(--pal);color:var(--palt)}
+.t-sched{background:var(--ted);color:var(--tedt)}.t-used{background:var(--tba);color:var(--tbat)}
+
+/* CALENDAR */
+.cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.cal-mo{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.cal-ctr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cal-leg{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t3);font-weight:500}
+.lg-d{width:5px;height:5px;border-radius:50%}
+.cal-nav{display:flex;gap:4px}
+.cal-arr{width:30px;height:30px;border-radius:8px;border:1px solid var(--bd);background:var(--w);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:15px;transition:all .1s}
+.cal-arr:hover{background:var(--bg);border-color:var(--bdh);color:var(--t1)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-hd{font-size:10px;font-weight:600;color:var(--t3);text-align:center;padding:5px 0;letter-spacing:.05em;text-transform:uppercase}
+.cal-cell{min-height:74px;border-radius:var(--r);padding:6px 6px 4px;border:1px solid var(--bd);background:var(--w);cursor:pointer;transition:border-color .1s;position:relative}
+.cal-cell:hover{border-color:var(--navy)}
+.cal-cell.today{border-color:var(--gold);border-width:2px}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+.cal-cell.has-e{background:var(--bg)}
+.d-n{font-size:10px;font-weight:600;color:var(--t3);margin-bottom:4px}
+.cal-cell.today .d-n{color:var(--t1)}
+.c-tag{font-size:9px;font-weight:600;padding:2px 5px;border-radius:5px;margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:3px;cursor:pointer;line-height:1.3}
+.c-tag:hover{opacity:.72}
+.c-tx{opacity:0;font-size:9px;flex-shrink:0}
+.c-tag:hover .c-tx{opacity:1}
+.c-add{font-size:9px;color:var(--t3);margin-top:3px;opacity:0;transition:opacity .1s;user-select:none}
+.cal-cell:hover .c-add{opacity:1}
+
+/* RICH TEXT EDITOR */
+.rte{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;transition:border-color .1s;background:var(--w)}
+.rte:focus-within{border-color:var(--gold)}
+.rte-bar{display:flex;align-items:center;flex-wrap:wrap;gap:1px;padding:5px 7px;border-bottom:1px solid var(--bd);background:#fafaf9}
+.rb{width:26px;height:24px;border-radius:5px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:11px;font-family:var(--font);font-weight:500;transition:all .1s;flex-shrink:0;line-height:1}
+.rb:hover{background:var(--bg);color:var(--t1)}
+.rb.act{background:var(--t1);color:var(--w)}
+.rb-w{width:auto!important;padding:0 8px;font-size:10px;font-weight:600}
+.rb-sep{width:1px;height:14px;background:var(--bd);margin:0 2px;flex-shrink:0}
+.rte-body{padding:10px 12px;min-height:110px;max-height:300px;overflow-y:auto;outline:none;font-size:13px;color:var(--t1);line-height:1.65;font-family:var(--font);background:var(--w)}
+.rte-body[data-ph]:empty::before{content:attr(data-ph);color:var(--t3);pointer-events:none;display:block}
+.rte-body b,.rte-body strong{font-weight:600}
+.rte-body i,.rte-body em{font-style:italic}
+.rte-body ul{padding-left:18px;margin:4px 0}
+.rte-body ol{padding-left:18px;margin:4px 0}
+.rte-body li{margin-bottom:2px}
+.rte-body h3{font-size:14px;font-weight:600;margin:8px 0 3px;color:var(--t1)}
+.rte-body blockquote{border-left:3px solid var(--bdh);padding-left:10px;color:var(--t2);margin:6px 0;font-style:italic}
+.rte-cnt{font-size:10px;color:var(--t3);padding:4px 12px 5px;border-top:1px solid var(--bd);background:#fafaf9;text-align:right}
+
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.fl{font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.02em}
+.fi,.fsel,.fta{background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);padding:8px 11px;font-size:13px;color:var(--t1);font-family:var(--font);transition:border-color .1s}
+.fi::placeholder,.fta::placeholder{color:var(--t3)}
+.fi:focus,.fsel:focus,.fta:focus{outline:none;border-color:var(--t1);background:var(--w)}
+.fta{resize:vertical;min-height:60px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
+.f-act{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+
+.type-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:11px}
+.type-opt{padding:9px 6px;border-radius:var(--r);border:1.5px solid var(--bd);cursor:pointer;text-align:center;transition:all .1s;font-size:10px;font-weight:600;color:var(--t2);background:var(--bg);user-select:none}
+.type-opt:hover{border-color:var(--bdh);color:var(--t1)}
+.type-opt.sel{border-color:var(--navy);color:var(--navy);background:var(--w)}
+.type-ic{font-size:17px;display:block;margin-bottom:3px}
+.plat-sel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px}
+.plat-opt{padding:5px 11px;border-radius:99px;border:1.5px solid var(--bd);cursor:pointer;font-size:11px;font-weight:600;color:var(--t2);background:var(--bg);transition:all .1s;user-select:none;font-family:var(--font)}
+.plat-opt:hover{border-color:var(--bdh);color:var(--t1)}
+.plat-opt.sel{border-color:var(--t1);color:var(--t1);background:var(--w)}
+
+/* ADD PANEL */
+.add-panel{display:none;background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);padding:20px;margin-bottom:16px}
+.add-panel.on{display:block;animation:fi .14s ease}
+.ap-title{font-size:16px;font-weight:600;letter-spacing:-.02em;margin-bottom:14px}
+
+/* STATUS TABS */
+.stabs{display:flex;gap:2px;background:var(--bg);border-radius:var(--r);padding:3px;width:fit-content;margin-bottom:13px}
+.stab{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:500;color:var(--t3);cursor:pointer;border:none;background:none;font-family:var(--font);transition:all .12s}
+.stab:hover{color:var(--t2)}
+.stab.on{background:var(--w);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.stab-n{font-size:10px;color:var(--t3);margin-left:3px}
+
+/* FILTER BAR */
+.bank-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.b-srch{flex:1;min-width:150px;background:var(--w);border:1px solid var(--bd);border-radius:var(--r);padding:7px 12px;font-size:13px;color:var(--t1);font-family:var(--font)}
+.b-srch::placeholder{color:var(--t3)}
+.b-srch:focus{outline:none;border-color:var(--t1)}
+.fchips{display:flex;gap:5px;flex-wrap:wrap}
+.fc{padding:5px 12px;border-radius:99px;border:1px solid var(--bd);background:var(--w);font-size:11px;font-weight:500;color:var(--t3);cursor:pointer;font-family:var(--font);transition:all .1s}
+.fc:hover{color:var(--t1);border-color:var(--bdh)}
+.fc.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.b-cnt{font-size:12px;color:var(--t3)}
+
+/* IDEA CARDS — grid view */
+.bk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.ic{background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);display:flex;flex-direction:column;transition:border-color .12s,box-shadow .12s;cursor:pointer;overflow:hidden}
+.ic:hover{border-color:var(--bdh);box-shadow:0 3px 18px rgba(0,0,0,.07)}
+.ic.used{opacity:.5;background:var(--bg)}
+.ic.used .ic-t{text-decoration:line-through;color:var(--t3)}
+.ic-top{padding:14px 16px 10px;display:flex;flex-direction:column;gap:7px;flex:1}
+.ic-head{display:flex;align-items:flex-start;gap:8px}
+.ic-t{font-size:13px;font-weight:600;line-height:1.35;flex:1;letter-spacing:-.01em;color:var(--t1)}
+.ic-hook{font-size:11px;color:var(--t2);line-height:1.55;font-style:italic;border-left:2px solid var(--bd);padding-left:9px}
+.ic-shots-preview{display:flex;flex-direction:column;gap:3px}
+.ic-shot-row{display:flex;align-items:flex-start;gap:8px;padding:5px 8px;background:var(--bg);border-radius:7px}
+.ic-shot-t{font-size:9px;font-weight:700;color:var(--t3);white-space:nowrap;padding-top:1px;min-width:36px;letter-spacing:.03em}
+.ic-shot-txt{font-size:10px;color:var(--t2);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ic-more-shots{font-size:10px;color:var(--t3);padding:3px 8px;text-align:center}
+.ic-drive{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg);border-radius:7px;margin-top:2px}
+.ic-drive-txt{font-size:10px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic-drive-txt a{color:var(--t2);text-decoration:none}
+.ic-drive-txt a:hover{color:var(--t1);text-decoration:underline}
+.ic-foot{padding:10px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--bg)}
+.ic-acts{display:flex;gap:5px;margin-left:auto}
+.ib{font-size:10px;padding:4px 9px;border-radius:6px;background:var(--w);border:1px solid var(--bd);color:var(--t2);cursor:pointer;font-family:var(--font);font-weight:500;transition:all .1s}
+.ib:hover{background:var(--t1);color:var(--w);border-color:var(--t1)}
+.ib.done{background:var(--tba);color:var(--tbat);border-color:transparent}
+.ib-gr{background:var(--tba)!important;color:var(--tbat)!important;border-color:transparent!important}
+.ib-gr:hover{background:#d2f0de!important;color:#0f5228!important}
+
+/* SCHEDULED */
+.sl{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd)}
+.sl:last-child{border-bottom:none}
+.sl-d{font-size:11px;font-weight:600;color:var(--t3);width:50px;flex-shrink:0;padding-top:1px}
+.sl-body{flex:1}
+.sl-t{font-size:13px;font-weight:500;margin-bottom:4px;letter-spacing:-.01em}
+.sl-chips{display:flex;gap:4px;flex-wrap:wrap}
+.sl-rm{color:var(--t3);cursor:pointer;font-size:16px;background:none;border:none;transition:color .1s;line-height:1;padding:0}
+.sl-rm:hover{color:var(--t1)}
+
+/* DRIVE ROW */
+.dr-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border-radius:var(--r);border:1px solid var(--bd)}
+.dr-txt{font-size:11px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr-txt a{color:var(--t2);text-decoration:none}
+.dr-txt a:hover{color:var(--t1);text-decoration:underline}
+.dr-edit{font-size:10px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:var(--font);padding:2px 4px}
+.dr-edit:hover{color:var(--t1)}
+.dr-add{font-size:11px;color:var(--t3);cursor:pointer;background:none;border:1px dashed var(--bdh);border-radius:8px;font-family:var(--font);display:flex;align-items:center;gap:5px;padding:6px 10px;width:100%;transition:all .1s}
+.dr-add:hover{color:var(--t1);background:var(--w)}
+
+/* PILLARS */
+.pcg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.pc{background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);padding:16px 18px}
+.pc-ic{font-size:23px;margin-bottom:8px}
+.pc-n{font-size:13px;font-weight:600;margin-bottom:2px}
+.pc-f{font-size:11px;color:var(--t3);margin-bottom:8px}
+.pc-d{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px}
+.pc-ch{display:flex;gap:4px;flex-wrap:wrap}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(17,17,16,.38);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
+.ov.on{display:flex}
+.modal{background:var(--w);border:1px solid var(--bd);border-radius:16px;padding:24px;width:660px;max-width:95vw;box-shadow:0 8px 36px rgba(0,0,0,.12);animation:fi .14s ease;position:relative;max-height:90vh;overflow-y:auto}
+.mo-close{position:sticky;top:0;float:right;width:28px;height:28px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:14px;transition:all .1s;z-index:2;margin:-2px -2px 0 0}
+.mo-close:hover{color:var(--t1)}
+.mo-title{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-bottom:3px}
+.mo-sub{font-size:12px;color:var(--t3);margin-bottom:18px}
+
+/* IDEA DETAIL MODAL */
+.id-section{margin-bottom:18px}
+.id-sec-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.id-shots{display:flex;flex-direction:column;gap:6px}
+.id-shot{display:flex;gap:10px;padding:10px 12px;background:var(--bg);border-radius:var(--r)}
+.id-shot-time{font-size:10px;font-weight:700;color:var(--t3);white-space:nowrap;min-width:46px;padding-top:2px;letter-spacing:.03em}
+.id-shot-body{flex:1}
+.id-shot-title{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:3px}
+.id-shot-dir{font-size:11px;color:var(--t3);font-style:italic;margin-bottom:4px;line-height:1.45}
+.id-shot-spoken{font-size:12px;color:var(--t1);line-height:1.6;padding:7px 10px;background:var(--w);border-radius:7px;border-left:2px solid var(--bdh);font-style:italic}
+.id-expand{border:none;background:none;width:100%;text-align:left;padding:8px 0;font-size:12px;font-weight:500;color:var(--t3);cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--bd);margin-top:14px}
+.id-expand:hover{color:var(--t1)}
+.id-expand-body{display:none;padding-top:12px}
+.id-expand-body.on{display:block}
+.checklist-item{font-size:12px;color:var(--t2);padding:3px 0;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.checklist-item::before{content:'☐';color:var(--t3);flex-shrink:0;font-size:13px;margin-top:1px}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--t1);color:var(--w);padding:9px 18px;border-radius:99px;font-size:12px;font-weight:500;opacity:0;transition:all .2s;pointer-events:none;z-index:300;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:38px 20px;color:var(--t3);font-size:13px}
+.empty-ic{font-size:26px;margin-bottom:9px}
+/* AI Review */
+.ai-loading{padding:8px 0}
+.ai-loading-bar{height:3px;background:var(--bd);border-radius:2px;overflow:hidden}
+.ai-loading-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--t1),#666);border-radius:2px;animation:ai-fill 2.5s ease-in-out infinite}
+@keyframes ai-fill{0%{width:0%}60%{width:85%}100%{width:95%}}
+.ai-spin{display:inline-block;animation:ai-spin .8s linear infinite}
+@keyframes ai-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sb">
+  <div class="sb-logo"><img src="data:image/png;base64,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" alt="New Value Home Remodeling"><div class="sb-tagline">Content Planner</div></div>
+  <div class="sb-sec">General</div>
+  <button class="nav on" onclick="go('home')"><span class="nav-ic">○</span>Overview</button>
+  <div class="sb-sec">Content</div>
+  <button class="nav" onclick="go('cal')"><span class="nav-ic">◫</span>Calendar</button>
+  <button class="nav" onclick="go('sched')"><span class="nav-ic">◷</span>Scheduled</button>
+  <button class="nav" onclick="go('bank')"><span class="nav-ic">◈</span>Idea Bank</button>
+  <button class="nav" onclick="go('pillars')"><span class="nav-ic">◇</span>Pillars</button>
+  <button class="nav" onclick="go('comp')"><span class="nav-ic">◎</span>Competition</button>
+  <button class="nav" onclick="go('inspo')"><span class="nav-ic">✦</span>Inspiration</button>
+  <div class="sb-foot">
+    <div class="sb-fl">Service Areas</div>
+    <div class="ap-row"><span class="ap">McKinney</span><span class="ap">Allen</span><span class="ap">Plano</span></div>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- OVERVIEW -->
+<div class="page on" id="page-home">
+  <div class="ph">
+    <div><div class="ph-t">Overview</div><div class="ph-s" id="today-lbl">—</div></div>
+    <div style="display:flex;gap:8px"><button class="btn" onclick="go('bank')">+ Add idea</button><button class="btn btn-gold" onclick="go('cal')">Plan content →</button></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-l">Posts scheduled</div><div class="stat-n" id="ov-s">0</div><div class="stat-s">this month</div></div>
+    <div class="stat"><div class="stat-l">Ideas in bank</div><div class="stat-n" id="ov-i">0</div><div class="stat-s">ready to use</div></div>
+    <div class="stat"><div class="stat-l">Past ideas</div><div class="stat-n" id="ov-u">0</div><div class="stat-s">added to calendar</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-t">Weekly posting rhythm</div><button class="btn btn-sm" onclick="go('cal')">View calendar</button></div>
+      <div class="ri"><div class="ri-day">Mon</div><div class="ri-dot" style="background:#3a7fd4;margin-top:5px"></div><div><div class="ri-m">Educational post</div><div class="ri-s">Tips, mistakes to avoid, process explainers</div></div></div>
+      <div class="ri"><div class="ri-day">Wed</div><div class="ri-dot" style="background:#3a9c6a;margin-top:5px"></div><div><div class="ri-m">Before &amp; after</div><div class="ri-s">Real project from McKinney / Allen / Plano</div></div></div>
+      <div class="ri"><div class="ri-day">Thu</div><div class="ri-dot" style="background:#c08030;margin-top:5px"></div><div><div class="ri-m">Cost / value post</div><div class="ri-s">Price ranges, ROI, what affects the cost</div></div></div>
+      <div class="ri"><div class="ri-day">Fri</div><div class="ri-dot" style="background:#7a50c0;margin-top:5px"></div><div><div class="ri-m">Behind the scenes</div><div class="ri-s">Job site, team, cleanliness in action</div></div></div>
+      <div class="ri"><div class="ri-day">Sun</div><div class="ri-dot" style="background:#b83a50;margin-top:5px"></div><div><div class="ri-m">Social proof</div><div class="ri-s">Real Google review or client testimonial</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-t">Platform focus</div></div>
+      <div class="ri"><div><div class="ri-m">Instagram / Reels</div><div class="ri-s">Visual portfolio · before/after · Reels priority</div></div><div class="ri-r">4×/wk</div></div>
+      <div class="ri"><div><div class="ri-m">TikTok</div><div class="ri-s">Tutorials, tips, behind the scenes · viral reach</div></div><div class="ri-r">3×/wk</div></div>
+      <div class="ri"><div><div class="ri-m">Facebook</div><div class="ri-s">Primary lead gen · ads + organic</div></div><div class="ri-r">5×/wk</div></div>
+      <div class="ri"><div><div class="ri-m">Google Business</div><div class="ri-s">Local SEO · posts + reviews</div></div><div class="ri-r">2×/wk</div></div>
+      <div class="ri"><div><div class="ri-m">Nextdoor</div><div class="ri-s">Hyper-local · McKinney neighbors</div></div><div class="ri-r">1×/wk</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-t">Content funnel</div></div>
+    <div class="fn"><div class="fn-top"><span class="fn-n">Reach (views)</span><span class="fn-v">100%</span></div><div class="fn-bar"><div class="fn-f" style="width:100%;background:#3a7fd4"></div></div></div>
+    <div class="fn"><div class="fn-top"><span class="fn-n">Profile visits</span><span class="fn-v">~65%</span></div><div class="fn-bar"><div class="fn-f" style="width:65%;background:#7a50c0"></div></div></div>
+    <div class="fn"><div class="fn-top"><span class="fn-n">Sends a message</span><span class="fn-v">~22%</span></div><div class="fn-bar"><div class="fn-f" style="width:22%;background:#c08030"></div></div></div>
+    <div class="fn"><div class="fn-top"><span class="fn-n">Books estimate</span><span class="fn-v">~10%</span></div><div class="fn-bar"><div class="fn-f" style="width:10%;background:#3a9c6a"></div></div></div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);font-size:11px;color:var(--t3)">Goal: push message rate above 30% — stronger CTA on every post</div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="page" id="page-cal">
+  <div class="ph"><div><div class="ph-t">Calendar</div><div class="ph-s">Click any day to schedule a post with full caption + Drive file</div></div></div>
+  <div class="card">
+    <div class="cal-top">
+      <div class="cal-mo" id="cal-lbl">—</div>
+      <div class="cal-ctr">
+        <div class="cal-leg">
+          <div class="lg-i"><div class="lg-d" style="background:var(--tbat)"></div>Before/after</div>
+          <div class="lg-i"><div class="lg-d" style="background:var(--tedt)"></div>Educational</div>
+          <div class="lg-i"><div class="lg-d" style="background:var(--tcot)"></div>Cost</div>
+          <div class="lg-i"><div class="lg-d" style="background:var(--ttrt)"></div>Trust</div>
+          <div class="lg-i"><div class="lg-d" style="background:var(--tbet)"></div>BTS</div>
+        </div>
+        <div class="cal-nav"><button class="cal-arr" onclick="calMov(-1)">‹</button><button class="cal-arr" onclick="calMov(1)">›</button></div>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+  <div style="font-size:11px;color:var(--t3);text-align:center;padding-top:5px">Click a day to add · click a post to edit · × to remove</div>
+</div>
+
+<!-- SCHEDULED -->
+<div class="page" id="page-sched">
+  <div class="ph"><div><div class="ph-t">Scheduled Posts</div><div class="ph-s">All posts this month in chronological order</div></div><button class="btn btn-dk" onclick="go('cal')">+ Schedule</button></div>
+  <div class="card"><div id="sched-list"><div class="empty"><div class="empty-ic">◷</div>No posts scheduled yet.</div></div></div>
+</div>
+
+<!-- IDEA BANK (merged with video scripts) -->
+<div class="page" id="page-bank">
+  <div class="ph">
+    <div><div class="ph-t">Idea Bank</div><div class="ph-s">Scripts, captions &amp; checklists — click any card to view, edit and add your Drive file</div></div>
+    <button class="btn btn-gold" onclick="toggleAdd()">+ New idea</button>
+  </div>
+
+  <div class="add-panel" id="add-panel">
+    <div class="ap-title">New idea</div>
+    <div class="f2">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Title</label><input class="fi" id="fi-title" placeholder="e.g. 3 signs your bathroom needs a remodel"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Platform</label><select class="fsel" id="fi-plat"><option value="ig">Instagram / Reels</option><option value="tk">TikTok</option><option value="fb">Facebook</option><option value="gg">Google Business</option><option value="nd">Nextdoor</option><option value="all">All platforms</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Post type</label>
+      <div class="type-sel" id="add-types">
+        <div class="type-opt sel" data-t="ba" onclick="selAddT(event)"><span class="type-ic">📸</span>Before/after</div>
+        <div class="type-opt" data-t="ed" onclick="selAddT(event)"><span class="type-ic">💡</span>Educational</div>
+        <div class="type-opt" data-t="co" onclick="selAddT(event)"><span class="type-ic">💰</span>Cost/value</div>
+        <div class="type-opt" data-t="tr" onclick="selAddT(event)"><span class="type-ic">⭐</span>Trust/proof</div>
+        <div class="type-opt" data-t="be" onclick="selAddT(event)"><span class="type-ic">🔨</span>Behind scenes</div>
+        <div class="type-opt" data-t="pr" onclick="selAddT(event)"><span class="type-ic">📋</span>Process</div>
+      </div>
+    </div>
+    <div class="f2">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Hook / opening line</label><input class="fi" id="fi-hook" placeholder="What stops the scroll?"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">File type</label><select class="fsel" id="fi-ftype"><option value="">No file</option><option value="photo">📷 Photo</option><option value="video">🎬 Video</option><option value="carousel">🖼 Carousel</option><option value="reel">▶️ Reel/TikTok</option><option value="graphic">🎨 Graphic</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Google Drive link</label><input class="fi" id="fi-drive" placeholder="https://drive.google.com/file/d/..."></div>
+    <div class="fg"><label class="fl">Script, caption &amp; checklist</label>
+      <div class="rte" id="rte-add"><div class="rte-bar" id="rte-add-bar"></div><div class="rte-body" id="rte-add-body" contenteditable="true" data-ph="Write the full script with timecodes, caption, hashtags, production checklist..."></div><div class="rte-cnt" id="rte-add-cnt">0 characters</div></div>
+    </div>
+    <div class="f-act"><button class="btn" onclick="toggleAdd()">Cancel</button><button class="btn btn-dk" onclick="saveIdea()">Save idea</button></div>
+  </div>
+
+  <div class="stabs">
+    <button class="stab on" data-s="all" onclick="setSt('all')">All <span class="stab-n" id="sc-a">0</span></button>
+    <button class="stab" data-s="pend" onclick="setSt('pend')">Ready to use <span class="stab-n" id="sc-p">0</span></button>
+    <button class="stab" data-s="used" onclick="setSt('used')">Past ideas <span class="stab-n" id="sc-u">0</span></button>
+  </div>
+  <div class="bank-bar">
+    <input class="b-srch" id="b-srch" placeholder="Search ideas…" oninput="renderBank()">
+    <div class="fchips">
+      <button class="fc on" data-f="all" onclick="setFl('all')">All types</button>
+      <button class="fc" data-f="ba" onclick="setFl('ba')">Before/after</button>
+      <button class="fc" data-f="ed" onclick="setFl('ed')">Educational</button>
+      <button class="fc" data-f="co" onclick="setFl('co')">Cost</button>
+      <button class="fc" data-f="tr" onclick="setFl('tr')">Trust</button>
+      <button class="fc" data-f="be" onclick="setFl('be')">BTS</button>
+    </div>
+    <span class="b-cnt" id="b-cnt"></span>
+  </div>
+  <div class="bk-grid" id="bk-grid"></div>
+</div>
+
+<!-- PILLARS -->
+<div class="page" id="page-pillars">
+  <div class="ph"><div><div class="ph-t">Content Pillars</div><div class="ph-s">The 6 content types that generate leads for NVHR</div></div></div>
+  <div class="pcg">
+    <div class="pc"><div class="pc-ic">📸</div><div class="pc-n">Before &amp; after</div><div class="pc-f">2× per week · highest engagement</div><div class="pc-d">Real transformations from McKinney, Allen, and Plano. Showing the full journey makes homeowners visualize their own space.</div><div class="pc-ch"><span class="tag t-ba">High priority</span><span class="tag t-ig">Instagram</span><span class="tag t-tk">TikTok</span></div></div>
+    <div class="pc"><div class="pc-ic">💰</div><div class="pc-n">Cost transparency</div><div class="pc-f">1× per week · builds instant trust</div><div class="pc-d">"What does a bathroom remodel cost in Plano?" Answer the exact question homeowners are Googling. Being upfront separates you from every competitor.</div><div class="pc-ch"><span class="tag t-co">Trust</span><span class="tag t-fb">Facebook</span><span class="tag t-gg">Google</span></div></div>
+    <div class="pc"><div class="pc-ic">⚠️</div><div class="pc-n">Homeowner mistakes</div><div class="pc-f">1× per week · high viral potential</div><div class="pc-d">"5 mistakes when hiring a contractor in Texas." Educates and positions NVHR as the expert. High saves and shares on TikTok.</div><div class="pc-ch"><span class="tag t-tr">Educational</span><span class="tag t-tk">TikTok</span><span class="tag t-ig">Reels</span></div></div>
+    <div class="pc"><div class="pc-ic">📋</div><div class="pc-n">Process &amp; timelines</div><div class="pc-f">1× per week · removes fear</div><div class="pc-d">"What a 7-day bathroom remodel looks like." Walk homeowners through the process step by step and the anxiety disappears.</div><div class="pc-ch"><span class="tag t-ed">Educational</span><span class="tag t-ig">Stories</span><span class="tag t-tk">TikTok</span></div></div>
+    <div class="pc"><div class="pc-ic">🔨</div><div class="pc-n">Behind the scenes</div><div class="pc-f">1× per week · builds real trust</div><div class="pc-d">Cleanliness, organization, care at the job site. Showing how NVHR treats a home builds more trust than any testimonial.</div><div class="pc-ch"><span class="tag t-be">BTS</span><span class="tag t-ig">Instagram</span><span class="tag t-tk">TikTok</span></div></div>
+    <div class="pc"><div class="pc-ic">⭐</div><div class="pc-n">Social proof</div><div class="pc-f">1× per week · closes decisions</div><div class="pc-d">Real Google reviews as graphics. "McKinney homeowner" converts better than a nameless review. The final push that turns a follower into a lead.</div><div class="pc-ch"><span class="tag t-tr">Conversion</span><span class="tag t-fb">Facebook</span><span class="tag t-gg">Google</span></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><div class="card-t">Every post should do at least one of these</div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="background:var(--bg);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:5px">👁</div><div style="font-size:12px;font-weight:600;margin-bottom:2px">Attract</div><div style="font-size:11px;color:var(--t3)">Stop the scroll</div></div>
+      <div style="background:var(--bg);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:5px">🤝</div><div style="font-size:12px;font-weight:600;margin-bottom:2px">Build trust</div><div style="font-size:11px;color:var(--t3)">Show proof and quality</div></div>
+      <div style="background:var(--bg);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:5px">💡</div><div style="font-size:12px;font-weight:600;margin-bottom:2px">Educate</div><div style="font-size:11px;color:var(--t3)">Answer the question they have</div></div>
+      <div style="background:var(--bg);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:20px;margin-bottom:5px">📲</div><div style="font-size:12px;font-weight:600;margin-bottom:2px">Convert</div><div style="font-size:11px;color:var(--t3)">Ask for the message or call</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPETITION PAGE -->
+<div class="page" id="page-comp">
+  <div class="ph">
+    <div><div class="ph-t">Competition</div><div class="ph-s">What your top local competitors are doing — and where NVHR wins</div></div>
+    <span style="font-size:11px;color:var(--t3);padding-top:6px">Last updated March 2026</span>
+  </div>
+
+  <!-- NVHR POSITION BANNER -->
+  <div style="background:var(--navy);color:var(--w);border-radius:var(--rl);padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-left:4px solid var(--gold)">
+    <div style="font-size:22px">🏆</div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600;margin-bottom:3px">NVHR's biggest competitive advantage right now</div>
+      <div style="font-size:12px;opacity:.75">None of your direct local competitors are active on TikTok or posting consistent short-form video. That lane is completely open. The first company in Collin County to own short-form video will own the market for the next 3 years.</div>
+    </div>
+  </div>
+
+  <!-- COMPETITOR CARDS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:24px" id="comp-grid"></div>
+
+  <!-- CONTENT GAP MATRIX -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><div class="card-t">Content gap matrix — what nobody is doing</div></div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px" id="gap-table"></table>
+    </div>
+  </div>
+
+  <!-- NVHR ACTION PLAN -->
+  <div class="card">
+    <div class="card-hd"><div class="card-t">🎯 NVHR action plan — how to win the market</div></div>
+    <div id="action-plan"></div>
+  </div>
+</div>
+
+<!-- INSPIRATION PAGE -->
+<div class="page" id="page-inspo">
+  <div class="ph">
+    <div><div class="ph-t">Inspiration</div><div class="ph-s">Posts that are working — paste the link, study the format, adapt for NVHR</div></div>
+    <button class="btn btn-gold" onclick="openInspoAdd()">+ Add post</button>
+  </div>
+
+  <div style="background:var(--navy);border-radius:var(--rl);padding:14px 18px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px">
+    <span style="font-size:20px;flex-shrink:0">💡</span>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:3px">Como usar esta aba</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.55);line-height:1.6">Viu um post bombar no TikTok ou Instagram? Clica em <strong style="color:var(--gold2)">+ Add post</strong>, cola o link direto do vídeo, e salva. Cada card terá um botão que abre o link original. Os 8 posts abaixo são referências curadas — você encontra em cada perfil pesquisando no app.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap" id="inspo-filters">
+    <button class="fc on" data-f="all" onclick="setInspoFilter('all')">All</button>
+    <button class="fc" data-f="tk" onclick="setInspoFilter('tk')">TikTok</button>
+    <button class="fc" data-f="ig" onclick="setInspoFilter('ig')">Instagram / Reels</button>
+    <button class="fc" data-f="ba" onclick="setInspoFilter('ba')">Before/after</button>
+    <button class="fc" data-f="ed" onclick="setInspoFilter('ed')">Educational</button>
+    <button class="fc" data-f="co" onclick="setInspoFilter('co')">Cost/value</button>
+    <button class="fc" data-f="bts" onclick="setInspoFilter('bts')">Behind scenes</button>
+  </div>
+  <div id="inspo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px"></div>
+</div>
+
+</main>
+</div>
+
+<!-- CALENDAR POST MODAL (add new post) -->
+<div class="ov" id="pm-ov">
+  <div class="modal" style="width:640px">
+    <button class="mo-close" onclick="closePM()">✕</button>
+    <div class="mo-title" id="pm-title">Add post</div>
+    <div class="mo-sub">Type · platform · full script · caption · checklist · Drive</div>
+    <div class="f2">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Post type</label>
+        <div class="type-sel" id="pm-types" style="grid-template-columns:repeat(3,1fr)">
+          <div class="type-opt sel" data-t="ba" onclick="selPMT(event)"><span class="type-ic">📸</span>Before/after</div>
+          <div class="type-opt" data-t="ed" onclick="selPMT(event)"><span class="type-ic">💡</span>Educational</div>
+          <div class="type-opt" data-t="co" onclick="selPMT(event)"><span class="type-ic">💰</span>Cost</div>
+          <div class="type-opt" data-t="tr" onclick="selPMT(event)"><span class="type-ic">⭐</span>Trust</div>
+          <div class="type-opt" data-t="be" onclick="selPMT(event)"><span class="type-ic">🔨</span>BTS</div>
+          <div class="type-opt" data-t="pr" onclick="selPMT(event)"><span class="type-ic">📋</span>Process</div>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Platform</label>
+        <div class="plat-sel" id="pm-plats">
+          <div class="plat-opt sel" data-p="ig" onclick="selPMP(event)">Instagram</div>
+          <div class="plat-opt" data-p="reels" onclick="selPMP(event)">Reels</div>
+          <div class="plat-opt" data-p="tk" onclick="selPMP(event)">TikTok</div>
+          <div class="plat-opt" data-p="fb" onclick="selPMP(event)">Facebook</div>
+          <div class="plat-opt" data-p="gg" onclick="selPMP(event)">Google</div>
+          <div class="plat-opt" data-p="nd" onclick="selPMP(event)">Nextdoor</div>
+        </div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Post title / hook</label><input class="fi" id="pm-ti" placeholder="e.g. Before/after master bath — Allen, TX"></div>
+    <div class="fg"><label class="fl">📝 Caption &amp; hashtags</label>
+      <div class="rte"><div class="rte-bar" id="rte-pm-bar"></div><div class="rte-body" id="rte-pm-body" contenteditable="true" data-ph="Full caption, hashtags, CTA..."></div><div class="rte-cnt" id="rte-pm-cnt">0 characters</div></div>
+    </div>
+    <div class="fg"><label class="fl">🎬 Script &amp; shot list</label>
+      <div class="rte"><div class="rte-bar" id="rte-pm-script-bar"></div><div class="rte-body" id="rte-pm-script" contenteditable="true" data-ph="Shot list, timecodes, voiceover lines, on-screen text..."></div><div class="rte-cnt" id="rte-pm-script-cnt">0 characters</div></div>
+    </div>
+    <div class="fg"><label class="fl">☐ Production checklist</label>
+      <div class="rte"><div class="rte-bar" id="rte-pm-chk-bar"></div><div class="rte-body" id="rte-pm-chk" contenteditable="true" data-ph="☐ Film before shot&#10;☐ Film after reveal&#10;☐ Pick trending audio..."></div><div class="rte-cnt" id="rte-pm-chk-cnt">0 characters</div></div>
+    </div>
+    <div class="fg" style="margin-bottom:4px"><label class="fl">Google Drive link</label><input class="fi" id="pm-drive" placeholder="https://drive.google.com/file/d/..."></div>
+    <!-- AI REVIEW inside add modal -->
+    <div id="pm-ai-box" style="display:none;margin:10px 0;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🤖 AI Content Review</div>
+      <div id="pm-ai-result" style="font-size:12px;color:var(--t2);line-height:1.65"></div>
+    </div>
+    <div class="f-act" style="gap:6px">
+      <button class="btn" onclick="closePM()">Cancel</button>
+      <button class="btn" onclick="reviewCalPost('pm')" id="pm-ai-btn">✦ Review with AI</button>
+      <button class="btn btn-dk" onclick="savePost()">Add to calendar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR POST DETAIL MODAL (view/edit existing) -->
+<div class="ov" id="det-ov">
+  <div class="modal" style="width:640px"><button class="mo-close" onclick="closeDet()">✕</button><div id="det-body"></div></div>
+</div>
+
+<!-- IDEA → CALENDAR MODAL -->
+<div class="ov" id="itc-ov">
+  <div class="modal" style="width:520px">
+    <button class="mo-close" onclick="closeITC()">✕</button>
+    <div class="mo-title">Add to Calendar</div>
+    <div class="mo-sub" id="itc-subtitle">Choose a date to schedule this idea</div>
+    <div class="f2" style="margin-bottom:14px">
+      <div class="fg" style="margin-bottom:0">
+        <label class="fl">Month</label>
+        <select class="fsel" id="itc-month"></select>
+      </div>
+      <div class="fg" style="margin-bottom:0">
+        <label class="fl">Year</label>
+        <select class="fsel" id="itc-year"></select>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Day</label>
+      <div id="itc-daygrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:2px"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Platform</label>
+      <div class="plat-sel" id="itc-plats">
+        <div class="plat-opt sel" data-p="ig" onclick="selITCP(event)">Instagram</div>
+        <div class="plat-opt" data-p="reels" onclick="selITCP(event)">Reels</div>
+        <div class="plat-opt" data-p="tk" onclick="selITCP(event)">TikTok</div>
+        <div class="plat-opt" data-p="fb" onclick="selITCP(event)">Facebook</div>
+        <div class="plat-opt" data-p="gg" onclick="selITCP(event)">Google Business</div>
+        <div class="plat-opt" data-p="nd" onclick="selITCP(event)">Nextdoor</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:16px;padding:8px 11px;background:var(--bg);border-radius:var(--r)">The full caption, script and Drive link from this idea will be carried over automatically.</div>
+    <div class="f-act">
+      <button class="btn" onclick="closeITC()">Cancel</button>
+      <button class="btn btn-dk" id="itc-confirm" onclick="confirmITC()" disabled style="opacity:.4">Choose a day first</button>
+    </div>
+  </div>
+</div>
+
+<!-- IDEA DETAIL MODAL -->
+<div class="ov" id="idea-ov">
+  <div class="modal"><button class="mo-close" onclick="closeIdea()">✕</button><div id="idea-body"></div></div>
+</div>
+
+<!-- INSPIRATION ADD MODAL -->
+<div class="ov" id="inspo-add-ov">
+  <div class="modal" style="width:560px">
+    <button class="mo-close" onclick="closeInspoAdd()">✕</button>
+    <div class="mo-title" id="inspo-add-title">Add a post for inspiration</div>
+    <div class="mo-sub">Paste the direct video link — it will open with one click</div>
+
+    <div class="fg">
+      <label class="fl" style="font-size:12px;color:var(--navy);font-weight:700">🔗 Video link (TikTok / Instagram / Reels / Facebook)</label>
+      <input class="fi" id="inspo-add-url" placeholder="https://www.tiktok.com/@account/video/123456789..." style="border:2px solid var(--gold);background:var(--goldbg);font-size:13px">
+      <div style="font-size:11px;color:var(--t3);margin-top:3px">Paste the full URL of the video. On TikTok: tap Share → Copy link. On Instagram: tap ··· → Copy link.</div>
+    </div>
+
+    <div class="f2">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Platform</label>
+        <div class="plat-sel" id="inspo-add-plats">
+          <div class="plat-opt sel" data-p="tk" onclick="selInspoAddP(event)">TikTok</div>
+          <div class="plat-opt" data-p="ig" onclick="selInspoAddP(event)">Instagram</div>
+          <div class="plat-opt" data-p="reels" onclick="selInspoAddP(event)">Reels</div>
+          <div class="plat-opt" data-p="fb" onclick="selInspoAddP(event)">Facebook</div>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Content type</label>
+        <div class="type-sel" id="inspo-add-types" style="grid-template-columns:repeat(3,1fr)">
+          <div class="type-opt sel" data-t="ba" onclick="selInspoAddT(event)"><span class="type-ic">📸</span>Before/after</div>
+          <div class="type-opt" data-t="ed" onclick="selInspoAddT(event)"><span class="type-ic">💡</span>Educational</div>
+          <div class="type-opt" data-t="co" onclick="selInspoAddT(event)"><span class="type-ic">💰</span>Cost/value</div>
+          <div class="type-opt" data-t="bts" onclick="selInspoAddT(event)"><span class="type-ic">🔨</span>BTS</div>
+          <div class="type-opt" data-t="tr" onclick="selInspoAddT(event)"><span class="type-ic">⭐</span>Trust/proof</div>
+          <div class="type-opt" data-t="vi" onclick="selInspoAddT(event)"><span class="type-ic">🎣</span>Hook/viral</div>
+        </div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Account / creator name</label><input class="fi" id="inspo-add-account" placeholder="e.g. @madalenatile or MtnTop Remodeling"></div>
+    <div class="fg"><label class="fl">Stats (views, likes, saves)</label><input class="fi" id="inspo-add-stats" placeholder="e.g. 556K likes · 1.3K comments · TikTok 2025"></div>
+    <div class="fg"><label class="fl">Why is it working?</label>
+      <textarea class="fi fta" id="inspo-add-why" rows="3" placeholder="What makes this post stop the scroll? Hook, format, energy, visuals..."></textarea>
+    </div>
+    <div class="fg" style="margin-bottom:16px"><label class="fl">How to adapt it for NVHR</label>
+      <textarea class="fi fta" id="inspo-add-adapt" rows="3" placeholder="Same format but our McKinney project. Film at the Allen job site..."></textarea>
+    </div>
+    <div class="f-act"><button class="btn" onclick="closeInspoAdd()">Cancel</button><button class="btn btn-gold" onclick="saveInspoAdd()">Save post</button></div>
+  </div>
+</div>
+
+<!-- INSPIRATION DETAIL MODAL -->
+<div class="ov" id="inspo-det-ov">
+  <div class="modal" style="width:600px"><button class="mo-close" onclick="closeInspoDet()">✕</button><div id="inspo-det-body"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TC={ba:{l:'Before/after',c:'t-ba',i:'📸'},ed:{l:'Educational',c:'t-ed',i:'💡'},co:{l:'Cost/value',c:'t-co',i:'💰'},tr:{l:'Trust/proof',c:'t-tr',i:'⭐'},be:{l:'Behind scenes',c:'t-be',i:'🔨'},pr:{l:'Process',c:'t-ed',i:'📋'}};
+const PC={ig:{l:'Instagram',c:'t-ig'},reels:{l:'Reels',c:'t-ig'},tk:{l:'TikTok',c:'t-tk'},fb:{l:'Facebook',c:'t-fb'},gg:{l:'Google Business',c:'t-gg'},nd:{l:'Nextdoor',c:'t-nd'},all:{l:'All',c:'t-all'}};
+const FL={photo:'📷 Photo',video:'🎬 Video',carousel:'🖼 Carousel',reel:'▶️ Reel/TikTok',graphic:'🎨 Graphic'};
+
+const S={
+  cal:{m:new Date().getMonth(),y:new Date().getFullYear(),data:{}},
+  ideas:[],fl:'all',stfl:'all',addOpen:false,
+  pm:{day:null,t:'ba',p:'ig'},addT:'ba',vp:null
+};
+
+S.cal.data['4-2025']={
+  1:[{t:'ba',p:'ig',ti:'Before/after master bathroom reveal',body:'',drive:''}],
+  3:[{t:'co',p:'fb',ti:'Real cost of a bathroom remodel in Plano',body:'',drive:''}],
+  4:[{t:'be',p:'ig',ti:'Behind the scenes — daily job site cleanup',body:'',drive:''}],
+  7:[{t:'ed',p:'fb',ti:'What a 7-day bathroom remodel looks like',body:'',drive:''}],
+  9:[{t:'ba',p:'reels',ti:'Allen, TX — tile transformation reveal',body:'',drive:''}],
+  14:[{t:'ed',p:'tk',ti:'5 mistakes when hiring a contractor',body:'',drive:''}],
+  16:[{t:'ba',p:'ig',ti:'Small bathroom, massive results — McKinney',body:'',drive:''}],
+  21:[{t:'tr',p:'fb',ti:'5-star Google review — McKinney homeowner',body:'',drive:''}],
+  23:[{t:'co',p:'tk',ti:'LVP vs tile — right flooring for Texas homes',body:'',drive:''}],
+  28:[{t:'be',p:'ig',ti:'Day in the life on a remodel job site',body:'',drive:''}],
+  30:[{t:'ba',p:'reels',ti:'Flooring transformation — LVP install reveal',body:'',drive:''}]
+};
+
+// Each idea has: title, type, platform, hook, shots[], caption, hashtags, checklist[], drive, ftype, sched, used
+S.ideas=[
+  {id:1,ti:'3 Signs Your Bathroom Needs a Remodel',t:'tr',p:'reels',
+   hook:'"3 signs your bathroom is overdue for a remodel — and most homeowners ignore all three."',
+   shots:[
+     {time:'0–3s',title:'HOOK',dir:'Walk through a dated bathroom OR stand in front of a completed "after." Point at things as you talk.',spoken:'"3 signs your bathroom is overdue for a remodel — and most homeowners ignore all three."'},
+     {time:'3–14s',title:'Sign #1',dir:'Point at grout lines on the floor.',spoken:'"Number one — your grout is cracking or turning dark and you can\'t scrub it clean anymore. That\'s not just ugly. Moisture is getting under your tile — and that becomes a real problem."'},
+     {time:'14–24s',title:'Sign #2',dir:'Open a vanity drawer or gesture toward cabinets.',spoken:'"Number two — your vanity feels outdated, cheap, or there\'s just not enough storage. You feel it every single morning."'},
+     {time:'24–33s',title:'Sign #3',dir:'Slow down. Look directly at camera.',spoken:'"Number three — and this is the one I hear most — you\'ve been saying "I need to fix this bathroom" for more than a year. That last one means it\'s time."'},
+     {time:'33–40s',title:'CTA',dir:'Cut to a stunning finished bathroom. Text overlay.',spoken:'"We\'re booking free estimates right now. Link in bio. McKinney, Allen, and Plano, TX."'},
+   ],
+   caption:`Most homeowners I talk to have been putting off their bathroom remodel for 2–3 years. Sound familiar?
+
+The longer you wait, the more small issues turn into bigger, more expensive ones.
+
+If any of those 3 signs hit home — let's talk. Free estimate, no obligation.
+
+📍 McKinney · Allen · Plano, TX — New Value Home Remodeling
+👉 Free estimate at link in bio`,
+   hashtags:'#BathroomRemodel #McKinneyTX #DFWRemodeling #BathroomRenovation #HomeImprovement #HomeRemodeling #PlanoHomes #AllenTX #BeforeAndAfter #RenovationGoals',
+   checklist:['Film on a real job site or in front of a completed bathroom','Wear company shirt — look professional','Cut to a strong "after" shot for the final 7 seconds','Add on-screen text for each sign number (CapCut or native)','Enable auto-captions — many watch without sound','Post TikTok → Reels → Facebook same day'],
+   drive:'',ftype:'reel',sched:false,used:false},
+
+  {id:2,ti:'Before & after — master bath tile transformation (Allen, TX)',t:'ba',p:'reels',
+   hook:'"Same bathroom. 7 days. You will not believe this is the same room."',
+   shots:[
+     {time:'0–3s',title:'HOOK visual',dir:'Open on the WORST angle of the before. Cracked tile, bad lighting. No voiceover.',spoken:'[Text on screen only] "This bathroom in Allen, TX."'},
+     {time:'3–8s',title:'Demo day',dir:'Fast cut to tile being removed. Debris flying. Satisfying.',spoken:'[Text] "Day 1."'},
+     {time:'8–20s',title:'Slow reveal',dir:'Camera starts at floor tile → rises slowly up the wall → vanity → lit mirror. Slow motion if possible. Trending audio at full volume.',spoken:'[Text] "Day 7. ✨"'},
+     {time:'20–32s',title:'Detail shots',dir:'3 fast cuts: grout lines → new faucet → full room with lights on.',spoken:'[Text] "New Value Home Remodeling · Allen, TX · Free estimate → link in bio 👆"'},
+   ],
+   caption:`Same bathroom. 7 days. Completely different home. ✨
+
+Every project we take on in McKinney, Allen, and Plano gets this same level of attention — the grout lines, the lighting, the finish.
+
+This is what we do.
+
+📍 Allen, TX | New Value Home Remodeling
+💬 Ready for yours? Free estimate — message us or tap the link in bio.`,
+   hashtags:'#BeforeAndAfter #BathroomReveal #BathroomRemodel #AllenTX #McKinneyTX #TileTransformation #NewValueHomeRemodeling #CollinCounty #HomeRenovation',
+   checklist:['Wide angle before shot from doorway','Same exact angle for after — natural + artificial light on','Close-up: grout lines (this signals quality)','Close-up: new faucet or hardware','Video: 30–40s reveal clip','Pick trending audio BEFORE filming','Post feed + Reels + TikTok + Facebook'],
+   drive:'',ftype:'reel',sched:false,used:false},
+
+  {id:3,ti:'5 Mistakes Homeowners Make Hiring a Contractor',t:'tr',p:'tk',
+   hook:'"Before you hire a contractor in Texas, watch this. I\'ve seen homeowners lose $15,000 because of mistake #3 alone."',
+   shots:[
+     {time:'0–5s',title:'HOOK',dir:'On camera, fast energy. Job site background.',spoken:'"Before you hire a contractor in Texas, watch this. I\'ve seen homeowners lose $15,000 because of mistake number 3 alone."'},
+     {time:'5–16s',title:'🚩 Mistake #1',dir:'Hold up 1 finger.',spoken:'"No license or insurance. Always ask for their Texas contractor license number and proof of liability insurance. If something goes wrong in your home, you are liable if they\'re not covered. Two minutes to verify. Never skip it."'},
+     {time:'16–26s',title:'🚩 Mistake #2',dir:'Hold up 2 fingers.',spoken:'"Going with the lowest bid. The cheapest quote is almost always the most expensive project. Poor materials, abandoned jobs, no experience. Get three bids and understand what\'s included."'},
+     {time:'26–37s',title:'🚩 Mistake #3',dir:'Hold up 3 fingers. This one — slow down.',spoken:'"No written contract. If it\'s not in writing, it doesn\'t exist. Scope, timeline, payment schedule, change order process — all in writing. No contract means no protection."'},
+     {time:'37–48s',title:'🚩 Mistake #4',dir:'Hold up 4 fingers.',spoken:'"Paying 100% upfront. Industry standard: 30–40% deposit, progress payments, final payment only when you\'re satisfied. Anyone who needs it all upfront has a problem."'},
+     {time:'48–60s',title:'🚩 Mistake #5',dir:'Hold up 5 fingers.',spoken:'"Not asking for a portfolio. Every contractor proud of their work has photos. Ask to see projects similar to yours. No photos means no experience — or projects they\'re not proud of."'},
+     {time:'60–75s',title:'CTA',dir:'Relax. Authentic close.',spoken:'"We\'re New Value Home Remodeling in McKinney, Texas. Licensed, insured, written contracts on every job. Free estimate for Collin County homeowners. Link in bio."'},
+   ],
+   caption:`Save this. Share it with someone who's about to hire a contractor. 🏠
+
+5 mistakes that cost homeowners thousands — and every single one is avoidable.
+
+New Value Home Remodeling — McKinney, Allen & Plano, TX.
+Licensed · Insured · Written contracts on every project.
+Free estimate, no pressure. Message us anytime. 📲`,
+   hashtags:'#ContractorTips #HomeRemodeling #McKinneyTX #AllenTX #PlanoTX #TikTokHome #HomeImprovement #BathroomRemodel #NewValueHomeRemodeling #CollinCounty',
+   checklist:['Film on job site or in front of finished bathroom','Use fingers on camera for each mistake (visual anchor)','Bold on-screen text for each point — CapCut','Red 🚩 emoji animation for each mistake','Auto-captions on (most TikTok users watch without sound)','Post TikTok → Instagram Reels → Facebook','Pin to TikTok profile + Instagram Highlight "Tips"'],
+   drive:'',ftype:'reel',sched:false,used:false},
+
+  {id:4,ti:'What a 7-Day Bathroom Remodel Actually Looks Like',t:'ed',p:'ig',
+   hook:'"Here\'s exactly what happens day by day — so you know what to expect."',
+   shots:[
+     {time:'Slide 1',title:'COVER',dir:'Final bathroom photo. Big text overlay.',spoken:'"Your bathroom remodel in 7 days — day by day. New Value Home Remodeling · McKinney, TX"'},
+     {time:'Slide 2',title:'Day 1',dir:'Photo of controlled demolition.',spoken:'"Day 1 — We protect your home, remove old tile and fixtures. Space is clean and prepped by end of day."'},
+     {time:'Slide 3',title:'Days 2–3',dir:'Photo of cement board / plumbing.',spoken:'"Days 2–3 — Any plumbing changes happen now. Cement board goes up — the foundation for perfect tile."'},
+     {time:'Slide 4',title:'Days 4–5',dir:'Photo of tile being set with level visible.',spoken:'"Days 4–5 — Tile is set. We work in sections to ensure every line is straight and every piece is perfect."'},
+     {time:'Slide 5',title:'Day 6',dir:'Close-up of clean grout lines + fresh paint.',spoken:'"Day 6 — Grouting, caulking, and painting. Every joint sealed. Every edge clean."'},
+     {time:'Slide 6',title:'Day 7',dir:'New vanity, fixtures, full reveal.',spoken:'"Day 7 — Vanity, lights, hardware, final walkthrough with you. Done."'},
+     {time:'Slide 7',title:'CTA',dir:'Clean branded slide.',spoken:'"Ready for your 7-day transformation? Free estimate — no obligation. [Phone] · McKinney, TX"'},
+   ],
+   caption:`The #1 thing that stops homeowners from starting a renovation: "I don't want to live in a mess for weeks."
+
+Here's the truth: a bathroom remodel with us takes 7 days. Swipe to see exactly what happens each day — and how we keep your home clean and livable the entire time. 👆
+
+📍 McKinney · Allen · Plano, TX
+💬 Free estimate — message us to get started.`,
+   hashtags:'#BathroomRemodel #HomeRenovation #McKinneyTX #7DayRemodel #NewValueHomeRemodeling #CollinCounty #BathroomTile #HomeImprovement #AllenTX',
+   checklist:['Photograph each day of next remodel project (1–2 photos/day)','Build 7-slide carousel in Canva using brand colors','Cover slide = strongest "after" photo','Last slide = clean CTA with contact info','Post Instagram feed (carousels get more reach than single image)','Repurpose slides as Facebook album post'],
+   drive:'',ftype:'carousel',sched:false,used:false},
+
+  {id:5,ti:'Day in the Life — Behind the Scenes on a Remodel',t:'be',p:'tk',
+   hook:'"This is what a real day on a bathroom remodel looks like. No cuts, no editing magic."',
+   shots:[
+     {time:'0–4s',title:'HOOK',dir:'Start filming on arrival — morning energy, no formal intro.',spoken:'"This is what a real day on a bathroom remodel actually looks like. No cuts, no editing magic."'},
+     {time:'4–14s',title:'Morning setup',dir:'Floor protection going down, plastic on walls.',spoken:'"7:30 AM. First thing we do before a single tool comes out — we protect your home. Plastic on the floors, barriers at the doorway. Your living room stays clean. That\'s the standard."'},
+     {time:'14–32s',title:'The work',dir:'Timelapse or real-time of tile work — close-up on level, trowel.',spoken:'"Then it\'s heads down. Every tile checked for level. Every grout line consistent. We don\'t rush this part."'},
+     {time:'32–48s',title:'End-of-day cleanup',dir:'Sweeping, bagging debris, removing plastic.',spoken:'"5:30 PM. Before we leave — everything gets cleaned up. No debris. No dust on your counters. Your home doesn\'t look like a construction zone. Every. Single. Day."'},
+     {time:'48–60s',title:'CTA',dir:'Walk camera through the day\'s progress.',spoken:'"Day 3 of 7. See you tomorrow. — New Value Home Remodeling, McKinney TX. Free estimate — link in bio."'},
+   ],
+   caption:`This is what we mean when we say we treat your home like our own. 🏠
+
+Day 3 of a bathroom remodel in McKinney, TX. Protection down before any work starts. Everything cleaned up before we leave.
+
+Not because we have to — because it's just how we work.
+
+💬 Free estimate, no strings. Message us or hit the link in bio.`,
+   hashtags:'#BehindTheScenes #HomeRemodeling #McKinneyTX #DayInTheLife #BathroomRemodel #TileWork #NewValueHomeRemodeling #TexasContractor #TikTokHome',
+   checklist:['Film arrival and setup — most powerful trust moment','Close-up timelapse of tile work (satisfying, stops scroll)','Film the end-of-day cleanup — non-negotiable shot','Keep it raw — over-produced BTS loses authenticity','Vertical 9:16 for TikTok/Reels','Add location tag: McKinney, TX','Post same day it\'s filmed — freshness matters on TikTok'],
+   drive:'',ftype:'video',sched:false,used:false},
+
+  {id:6,ti:'What You Actually Get for $10,000 in a Bathroom Remodel',t:'co',p:'tk',
+   hook:'"People ask me all the time: what do I actually get for $10,000 in a bathroom remodel in Texas?"',
+   shots:[
+     {time:'0–4s',title:'HOOK',dir:'On camera, direct eye contact. Confident tone.',spoken:'"People ask me all the time: what do I actually get for $10,000 in a bathroom remodel in Texas? Let me break it down."'},
+     {time:'4–17s',title:'What $10k gets you',dir:'Walk and talk, or cut to real project photos.',spoken:'"For $10,000 in the McKinney and Plano area, you\'re getting a full tile floor, tile walls in the shower, a new vanity with a solid top, new fixtures, and professional installation. That\'s a real bathroom transformation."'},
+     {time:'17–29s',title:'What pushes it to $15k+',dir:'Point at specific elements.',spoken:'"What takes it to $15,000 or more? Large-format porcelain, a custom shower niche, moving plumbing, or a freestanding tub. Each of those adds cost — and that\'s fine, as long as your contractor is honest about it upfront."'},
+     {time:'29–43s',title:'The honest truth',dir:'Slow down. Direct to camera.',spoken:'"Here\'s what I\'ll tell you straight: if someone quotes you $5,000 for a full bathroom remodel — ask what they\'re leaving out. Because something is always being left out."'},
+     {time:'43–55s',title:'CTA',dir:'Smile, relaxed close.',spoken:'"We give free, written estimates — zero surprises. If you\'re in McKinney, Allen, or Plano, message us and we\'ll come take a look. Link in bio."'},
+   ],
+   caption:`"What do I actually get for $10,000 in a bathroom remodel?"
+
+Here's the honest answer for McKinney / Plano, TX in 2025:
+
+✅ Full tile floor
+✅ Tiled shower walls
+✅ New vanity + countertop
+✅ New fixtures + hardware
+✅ Professional installation
+
+$15k+? Large format tile, custom niches, plumbing moves, freestanding tub.
+
+We give free written estimates with zero surprises. Message us. 📲`,
+   hashtags:'#BathroomRemodel #HomeRenovation #McKinneyTX #PlanoTX #AllenTX #HomeBudget #Remodeling101 #NewValueHomeRemodeling #DFWContractor #CollinCounty',
+   checklist:['Film in front of a completed bathroom or active job site','Show real photos of $10k and $15k projects as B-roll','Price numbers visible as on-screen text (hook viewers)','Repurpose as a Facebook carousel: one price tier per slide','Boost Facebook version: homeowners 35–65, Collin County, $15/day'],
+   drive:'',ftype:'reel',sched:false,used:false},
+
+  {id:7,ti:'LVP vs Tile — What 100+ Texas Installs Taught Us',t:'ed',p:'tk',
+   hook:'"LVP or tile — which one should you actually put in your Texas home? After 100+ installs in Collin County, here\'s what I\'d tell my own family."',
+   shots:[
+     {time:'0–5s',title:'HOOK',dir:'Stand on a freshly installed floor. Point down.',spoken:'"LVP or tile — which one should you actually put in your Texas home? After 100+ installs in Collin County, here\'s what I\'d tell my own family."'},
+     {time:'5–22s',title:'LVP breakdown',dir:'Cut to LVP installation B-roll.',spoken:'"LVP is great for bedrooms, living rooms, and hallways. Comfortable underfoot, quieter, and budget-friendly — $3 to $6 per square foot installed. Important in Texas: it expands and contracts with heat. Your installer needs to leave the right gap. Done right — beautiful and lasting."'},
+     {time:'22–42s',title:'Tile breakdown',dir:'Cut to porcelain tile install.',spoken:'"Tile wins in bathrooms, kitchens, and laundry rooms — anywhere that sees water or heavy traffic. It handles Texas heat without buckling. Lifespan 20–30 years. Cost installed: $6 to $12 per square foot."'},
+     {time:'42–55s',title:'The Texas Rule',dir:'Come back to camera. Key takeaway.',spoken:'"The Texas rule: anywhere in your home that gets genuinely hot — a garage, covered patio, sunroom — always go tile. LVP will warp under extreme temperature swings. Don\'t learn that the hard way."'},
+     {time:'55–65s',title:'CTA',dir:'Easy, conversational close.',spoken:'"Not sure which is right for your specific space? Message us — free advice, no strings. New Value Home Remodeling, McKinney TX. Link in bio."'},
+   ],
+   caption:`LVP vs tile — after 100+ installs in Collin County, here's exactly what I tell every homeowner. 👇
+
+🟦 LVP: Great for bedrooms + living areas. Comfortable, quiet, budget-friendly.
+🟫 Tile: The only real choice for bathrooms + kitchens in Texas heat.
+
+⚠️ Texas rule: hot spaces (garage, patio, sunroom) = tile only. LVP will warp.
+
+Not sure what's right for your home? Message us. Free advice, always. 📲`,
+   hashtags:'#FlooringTips #LVP #TileFlooring #McKinneyTX #HomeRemodeling #TikTokHome #NewValueHomeRemodeling #TexasHome #CollinCounty #FloorInstallation',
+   checklist:['Film standing on a recently completed floor install','Cut to close-ups of both LVP and tile as B-roll','On-screen text labels for each flooring type','Create Instagram Carousel version: 4 slides','Post TikTok → Instagram Reels → Facebook'],
+   drive:'',ftype:'reel',sched:false,used:false},
+
+  {id:8,ti:'5-Star Review — Reading a Real Client Review on Camera',t:'tr',p:'fb',
+   hook:'"We just got this review and I have to share it. This is everything."',
+   shots:[
+     {time:'0–4s',title:'HOOK',dir:'Hold up your phone showing the Google review. Smile naturally.',spoken:'"We just got this review and I have to share it. This is everything."'},
+     {time:'4–18s',title:'Read the review',dir:'Read it slowly and genuinely. React naturally. Pause at the best lines.',spoken:'[Read the actual 5-star Google review out loud — natural, not scripted]'},
+     {time:'18–27s',title:'React',dir:'Lower the phone. Look at camera. Authentic.',spoken:'"This is why we do this. Every single project — this is what we\'re working toward. Not just a finished bathroom — a homeowner who feels genuinely taken care of."'},
+     {time:'27–35s',title:'CTA',dir:'Natural close. No hard sell.',spoken:'"If you\'re in McKinney, Allen, or Plano and thinking about a remodel — we\'d love to show you the same thing. Free estimate, link in bio."'},
+   ],
+   caption:`Reviews like this never get old. ❤️
+
+[Client name] trusted us with their bathroom renovation in McKinney — and this is what they had to say.
+
+We don't just want to finish jobs. We want homeowners to feel genuinely taken care of — from the first call to the final walkthrough.
+
+👉 Free estimate, no pressure. Message us or tap the link in bio. 📲`,
+   hashtags:'#CustomerReview #McKinneyTX #HomeRemodeling #NewValueHomeRemodeling #5Stars #BathroomRemodel #CollinCounty #AllenTX #PlanoTX',
+   checklist:['Use most recent 5-star Google review','Ask client permission to use their name','Film with phone visible in hand — feels authentic','Don\'t over-rehearse — genuine reaction is the whole point','Create static graphic version for feed post','Save as recurring weekly series: "Another happy client"'],
+   drive:'',ftype:'video',sched:false,used:false},
+
+  {id:9,ti:'Demo to Done — Watch This Bathroom Transform',t:'ba',p:'tk',
+   hook:'"Start to finish. No voiceover. Just the work."',
+   shots:[
+     {time:'0–3s',title:'HOOK',dir:'First frame = the raw demo bathroom. Text only.',spoken:'[Text]: "This bathroom in Plano, TX — before we touched it."'},
+     {time:'3–8s',title:'Day 1',dir:'Fast timelapse of tile demolition. Chips flying.',spoken:'[Text]: "Day 1 — demolition."'},
+     {time:'8–14s',title:'Day 2',dir:'Cement board going up, level in use.',spoken:'[Text]: "Day 2 — foundation."'},
+     {time:'14–23s',title:'Days 3–5',dir:'Real-time or slow timelapse of tile layout. Close-up on alignment.',spoken:'[Text]: "Days 3–5 — every tile set by hand."'},
+     {time:'23–30s',title:'Day 6',dir:'Grout being applied, joints cleaned. Satisfying close-up.',spoken:'[Text]: "Day 6 — the finishing touch."'},
+     {time:'30–42s',title:'Reveal — Day 7',dir:'Slow camera pan from floor to ceiling → vanity → mirror → full room. Trending audio at full volume.',spoken:'[Text]: "Day 7. Done. ✨ New Value Home Remodeling · Plano, TX · Free estimate at link in bio"'},
+   ],
+   caption:`Start to finish — a full bathroom transformation in Plano, TX. ✨
+
+7 days. Every tile set by hand. Every grout line cleaned by hand. Every detail checked before we leave.
+
+This is the standard at New Value Home Remodeling — every project, every time.
+
+📍 McKinney · Allen · Plano, TX
+💬 Ready for yours? Free estimate — message us or tap the link in bio.`,
+   hashtags:'#BathroomRemodel #TimeLapse #BeforeAndAfter #PlanoTX #McKinneyTX #TileWork #HomeRenovation #NewValueHomeRemodeling #BathroomReveal #DFWContractor',
+   checklist:['Film EVERY day of the project — even just 30 seconds','Timelapse: 10min of work → 10 seconds of video','Grouting close-up is the most satisfying shot — don\'t skip','No voiceover needed — trending audio + text = full recipe','Upload at native 4K if phone supports it (better TikTok reach)','Repurpose as Instagram Story series, YouTube Short, Facebook video'],
+   drive:'',ftype:'reel',sched:false,used:false},
+
+  {id:10,ti:'Red Flags — How to Spot a Bad Contractor',t:'tr',p:'tk',
+   hook:'"Watch this before you hand anyone a deposit."',
+   shots:[
+     {time:'0–5s',title:'HOOK',dir:'Fast, high energy on camera.',spoken:'"If you\'re about to hire a contractor in Texas, slow down for 60 seconds. These are the red flags I\'ve seen cost people $10,000, $20,000 — and every single one was avoidable."'},
+     {time:'5–16s',title:'🚩 Red Flag #1',dir:'Point at camera.',spoken:'"They can\'t give you a license number. Ask for their Texas contractor license. If they hesitate or change the subject — that\'s a lie. End the conversation."'},
+     {time:'16–27s',title:'🚩 Red Flag #2',dir:'Hold up fingers.',spoken:'"Wants full payment before starting. Industry standard is 30–40% deposit. Anyone demanding full payment upfront has a serious cash flow problem or plans to disappear."'},
+     {time:'27–39s',title:'🚩 Red Flag #3',dir:'Slow down on this one.',spoken:'"No written contract. \'We\'ll figure it out as we go\' is not a contract. You need scope, timeline, payment schedule, and change order process — in writing. This protects both of you."'},
+     {time:'39–51s',title:'🚩 Red Flag #4',dir:'',spoken:'"No photos of past work. Every legitimate contractor is proud of their work and has photos to prove it. No portfolio means no experience — or projects they\'re ashamed of."'},
+     {time:'51–63s',title:'🚩 Red Flag #5',dir:'',spoken:'"Price is 40–50% below everyone else. There\'s always a reason. Budget materials, unlicensed labor, or they\'ll hit you with \'change orders\' midway that triple the price."'},
+     {time:'63–78s',title:'CTA',dir:'Earn the lead.',spoken:'"We\'re New Value Home Remodeling out of McKinney, Texas. Licensed, insured, written contracts on every job. We do none of these 5 things — and we never will. Free estimate. Link in bio. 👆"'},
+   ],
+   caption:`Save this before you hire anyone for your home. 🏠
+
+5 red flags that expose a bad contractor — every single one is a reason to walk away immediately.
+
+New Value Home Remodeling — McKinney, Allen & Plano, TX.
+Licensed · Insured · Written contracts · 5-star reviews.
+Free estimate — message us anytime. 📲`,
+   hashtags:'#ContractorRedFlags #HomeRemodeling #McKinneyTX #TikTokHome #TexasContractor #BathroomRemodel #NewValueHomeRemodeling #HomeImprovement #CollinCounty',
+   checklist:['Film on-location — job site adds instant credibility','Company shirt visible throughout','Bold on-screen text for each red flag (CapCut)','Red 🚩 emoji animation on each point','Auto-captions on','Post TikTok → Instagram Reels → Facebook','Pin to TikTok profile · Instagram Highlight "Tips"','Boost Facebook version: homeowners 35–65, Collin County'],
+   drive:'',ftype:'reel',sched:false,used:false}
+];
+
+// ── NAVIGATION ────────────────────────────────────
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.nav').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  document.querySelector(`.nav[onclick="go('${p}')"]`).classList.add('on');
+  if(p==='cal')renderCal();if(p==='bank')renderBank();if(p==='sched')renderSched();
+  if(p==='comp')renderComp();if(p==='inspo')renderInspo();
+  updOv();
+}
+function updOv(){
+  const k=calK();let n=0;
+  if(S.cal.data[k])Object.values(S.cal.data[k]).forEach(a=>n+=a.length);
+  _t('ov-s',n);_t('ov-i',S.ideas.length);_t('ov-u',S.ideas.filter(i=>i.used).length);
+}
+function _t(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+// ── CALENDAR ─────────────────────────────────────
+function calK(){return(S.cal.m+1)+'-'+S.cal.y;}
+function renderCal(){
+  document.getElementById('cal-lbl').textContent=MONTHS[S.cal.m]+' '+S.cal.y;
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{const h=document.createElement('div');h.className='cal-hd';h.textContent=d;grid.appendChild(h);});
+  const first=new Date(S.cal.y,S.cal.m,1).getDay(),days=new Date(S.cal.y,S.cal.m+1,0).getDate();
+  const data=S.cal.data[calK()]||{},today=new Date();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-cell empty';grid.appendChild(e);}
+  for(let d=1;d<=days;d++){
+    const cell=document.createElement('div');
+    const isT=today.getDate()===d&&today.getMonth()===S.cal.m&&today.getFullYear()===S.cal.y;
+    cell.className='cal-cell'+(isT?' today':'')+(data[d]?.length?' has-e':'');
+    const num=document.createElement('div');num.className='d-n';num.textContent=d;cell.appendChild(num);
+    (data[d]||[]).forEach((post,idx)=>{
+      const tc=TC[post.t]||TC.ed;
+      const tag=document.createElement('div');tag.className=`c-tag ${tc.c}`;
+      tag.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${tc.i} ${esc(post.ti)}</span><em class="c-tx" onclick="event.stopPropagation();rmPost('${calK()}',${d},${idx})">×</em>`;
+      tag.onclick=(e)=>{if(!e.target.classList.contains('c-tx'))openDet(calK(),d,idx);};
+      cell.appendChild(tag);
+    });
+    const hint=document.createElement('div');hint.className='c-add';hint.textContent='+ add post';cell.appendChild(hint);
+    cell.addEventListener('click',e=>{if(e.target===cell||e.target===num||e.target===hint)openPM(d);});
+    grid.appendChild(cell);
+  }
+  updOv();
+}
+function calMov(dir){S.cal.m+=dir;if(S.cal.m<0){S.cal.m=11;S.cal.y--;}if(S.cal.m>11){S.cal.m=0;S.cal.y++;}renderCal();}
+function rmPost(k,d,idx){if(!S.cal.data[k]?.[d])return;S.cal.data[k][d].splice(idx,1);if(!S.cal.data[k][d].length)delete S.cal.data[k][d];renderCal();if(document.getElementById('page-sched').classList.contains('on'))renderSched();toast('Post removed');}
+
+function openPM(day){
+  S.pm.day=day;S.pm.t='ba';S.pm.p='ig';
+  document.getElementById('pm-title').textContent=`Add post — ${MONTHS[S.cal.m]} ${day}`;
+  document.getElementById('pm-ti').value='';
+  document.getElementById('pm-drive').value='';
+  rteSet('rte-pm-body','rte-pm-cnt','');
+  rteSet('rte-pm-script','rte-pm-script-cnt','');
+  rteSet('rte-pm-chk','rte-pm-chk-cnt','');
+  document.getElementById('pm-ai-box').style.display='none';
+  document.getElementById('pm-ai-result').innerHTML='';
+  document.querySelectorAll('#pm-types .type-opt').forEach((o,i)=>o.classList.toggle('sel',i===0));
+  document.querySelectorAll('#pm-plats .plat-opt').forEach((o,i)=>o.classList.toggle('sel',i===0));
+  document.getElementById('pm-ov').classList.add('on');
+  buildRTE('rte-pm-bar','rte-pm-body','rte-pm-cnt');
+  buildRTE('rte-pm-script-bar','rte-pm-script','rte-pm-script-cnt');
+  buildRTE('rte-pm-chk-bar','rte-pm-chk','rte-pm-chk-cnt');
+  setTimeout(()=>document.getElementById('pm-ti').focus(),100);
+}
+function closePM(){document.getElementById('pm-ov').classList.remove('on');}
+function selPMT(e){document.querySelectorAll('#pm-types .type-opt').forEach(o=>o.classList.remove('sel'));e.currentTarget.classList.add('sel');S.pm.t=e.currentTarget.dataset.t;}
+function selPMP(e){document.querySelectorAll('#pm-plats .plat-opt').forEach(o=>o.classList.remove('sel'));e.currentTarget.classList.add('sel');S.pm.p=e.currentTarget.dataset.p;}
+function savePost(){
+  if(!S.pm.day)return;
+  const k=calK();if(!S.cal.data[k])S.cal.data[k]={};if(!S.cal.data[k][S.pm.day])S.cal.data[k][S.pm.day]=[];
+  const tc=TC[S.pm.t]||TC.ed;
+  const ti=document.getElementById('pm-ti').value.trim()||tc.l;
+  const body=document.getElementById('rte-pm-body').innerHTML;
+  const script=document.getElementById('rte-pm-script').innerHTML;
+  const checklist=document.getElementById('rte-pm-chk').innerHTML;
+  const drive=document.getElementById('pm-drive').value.trim();
+  S.cal.data[k][S.pm.day].push({t:S.pm.t,p:S.pm.p,ti,body,script,checklist,drive});
+  closePM();renderCal();toast('Post added to calendar ✓');
+}
+function openDet(k,d,idx){
+  const post=S.cal.data[k]?.[d]?.[idx];if(!post)return;
+  S.vp={k,d,idx};
+  const tc=TC[post.t]||TC.ed,pc=PC[post.p]||PC.ig;
+  const drH=post.drive
+    ?`<div class="dr-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5L8.5 12.5M8.5 12.5L12 6L15.5 12.5M8.5 12.5H19.5M15.5 12.5L19.5 19.5M4.5 19.5H19.5" stroke="#4a90d9" stroke-width="1.5" stroke-linejoin="round"/></svg><div class="dr-txt"><a href="${esc(post.drive)}" target="_blank">Open in Drive ↗</a></div><button class="dr-edit" onclick="editPDrive()">edit</button></div>`
+    :`<button class="dr-add" onclick="editPDrive()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5L8.5 12.5M8.5 12.5L12 6L15.5 12.5M8.5 12.5H19.5M15.5 12.5L19.5 19.5M4.5 19.5H19.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Add Google Drive file</button>`;
+
+  document.getElementById('det-body').innerHTML=`
+    <div style="display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap;align-items:center">
+      <span class="tag ${tc.c}">${tc.i} ${tc.l}</span><span class="tag ${pc.c}">${pc.l}</span>
+      <span style="font-size:11px;color:var(--t3);margin-left:auto">${MONTHS[S.cal.m]} ${d}</span>
+    </div>
+    <div style="font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:14px;line-height:1.3">${esc(post.ti)}</div>
+
+    <!-- Caption -->
+    <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      📝 Caption &amp; hashtags
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="copyDetCaption()">Copy</button>
+        <button class="btn btn-sm btn-dk" id="det-save" onclick="saveDetBody()" style="display:none">Save</button>
+      </div>
+    </div>
+    <div class="rte" style="margin-bottom:12px"><div class="rte-bar" id="rte-det-bar"></div><div class="rte-body" id="rte-det-body" contenteditable="true" data-ph="Caption, hashtags, CTA..."></div><div class="rte-cnt" id="rte-det-cnt">0 characters</div></div>
+
+    <!-- Script -->
+    <button class="id-expand" onclick="toggleExpand(this)"><span>🎬 Script &amp; shot list</span><span>+</span></button>
+    <div class="id-expand-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:6px"><button class="btn btn-sm btn-dk" id="det-script-save" onclick="saveDetScript()" style="display:none">Save</button></div>
+      <div class="rte"><div class="rte-bar" id="rte-det-script-bar"></div><div class="rte-body" id="rte-det-script" contenteditable="true" data-ph="Shot list, timecodes, voiceover lines..."></div><div class="rte-cnt" id="rte-det-script-cnt">0 characters</div></div>
+    </div>
+
+    <!-- Checklist -->
+    <button class="id-expand" onclick="toggleExpand(this)"><span>☐ Production checklist</span><span>+</span></button>
+    <div class="id-expand-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:6px"><button class="btn btn-sm btn-dk" id="det-chk-save" onclick="saveDetChk()" style="display:none">Save</button></div>
+      <div class="rte"><div class="rte-bar" id="rte-det-chk-bar"></div><div class="rte-body" id="rte-det-chk" contenteditable="true" data-ph="☐ Film before shot&#10;☐ Post to Instagram..."></div><div class="rte-cnt" id="rte-det-chk-cnt">0 characters</div></div>
+    </div>
+
+    <!-- Drive -->
+    <div style="margin:12px 0">
+      <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Google Drive file</div>
+      ${drH}
+    </div>
+
+    <!-- AI Review -->
+    <div id="det-ai-box" style="display:none;margin:10px 0;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🤖 AI Content Review</div>
+      <div id="det-ai-result" style="font-size:12px;color:var(--t2);line-height:1.65"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--bd);flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="saveDetBody()">Save caption</button>
+      <button class="btn btn-sm" onclick="reviewCalPost('det')" id="det-ai-btn">✦ Review with AI</button>
+      <button class="btn btn-sm" style="margin-left:auto;color:var(--ttrt);border-color:var(--ttr)" onclick="rmPost('${k}',${d},${idx});closeDet()">Remove post</button>
+    </div>`;
+
+  document.getElementById('det-ov').classList.add('on');
+  buildRTE('rte-det-bar','rte-det-body','rte-det-cnt');
+  buildRTE('rte-det-script-bar','rte-det-script','rte-det-script-cnt');
+  buildRTE('rte-det-chk-bar','rte-det-chk','rte-det-chk-cnt');
+  rteSet('rte-det-body','rte-det-cnt',post.body||'');
+  rteSet('rte-det-script','rte-det-script-cnt',post.script||'');
+  rteSet('rte-det-chk','rte-det-chk-cnt',post.checklist||'');
+
+  const watchSave=(bodyId,btnId)=>{
+    const el=document.getElementById(bodyId),btn=document.getElementById(btnId);
+    if(el&&btn)el.addEventListener('input',()=>btn.style.display='inline-flex');
+  };
+  watchSave('rte-det-body','det-save');
+  watchSave('rte-det-script','det-script-save');
+  watchSave('rte-det-chk','det-chk-save');
+}
+function closeDet(){document.getElementById('det-ov').classList.remove('on');}
+function saveDetBody(){
+  if(!S.vp)return;
+  const {k,d,idx}=S.vp,post=S.cal.data[k]?.[d]?.[idx];
+  if(post){post.body=document.getElementById('rte-det-body').innerHTML;const b=document.getElementById('det-save');if(b)b.style.display='none';toast('Caption saved ✓');}
+}
+function saveDetScript(){
+  if(!S.vp)return;
+  const {k,d,idx}=S.vp,post=S.cal.data[k]?.[d]?.[idx];
+  if(post){post.script=document.getElementById('rte-det-script').innerHTML;const b=document.getElementById('det-script-save');if(b)b.style.display='none';toast('Script saved ✓');}
+}
+function saveDetChk(){
+  if(!S.vp)return;
+  const {k,d,idx}=S.vp,post=S.cal.data[k]?.[d]?.[idx];
+  if(post){post.checklist=document.getElementById('rte-det-chk').innerHTML;const b=document.getElementById('det-chk-save');if(b)b.style.display='none';toast('Checklist saved ✓');}
+}
+function copyDetCaption(){
+  const el=document.getElementById('rte-det-body');if(!el)return;
+  navigator.clipboard.writeText(el.innerText||'').then(()=>toast('Caption copied ✓')).catch(()=>toast('Select and copy manually'));
+}
+function editPDrive(){
+  if(!S.vp)return;
+  const {k,d,idx}=S.vp,post=S.cal.data[k]?.[d]?.[idx];
+  const url=prompt('Paste Google Drive link:',post?post.drive:'');
+  if(url!==null&&post){post.drive=url.trim();openDet(k,d,idx);toast(url.trim()?'Link saved ✓':'Link removed');}
+}
+function renderSched(){
+  const list=document.getElementById('sched-list'),k=calK(),data=S.cal.data[k]||{};
+  const days=Object.keys(data).map(Number).sort((a,b)=>a-b);
+  if(!days.length){list.innerHTML='<div class="empty"><div class="empty-ic">◷</div>No posts scheduled.<br>Add posts in the calendar.</div>';return;}
+  list.innerHTML='';
+  days.forEach(d=>(data[d]||[]).forEach((post,idx)=>{
+    const tc=TC[post.t]||TC.ed,pc=PC[post.p]||PC.ig;
+    const item=document.createElement('div');item.className='sl';
+    item.innerHTML=`<div class="sl-d">${MONTHS[S.cal.m].slice(0,3)} ${d}</div><div class="sl-body"><div class="sl-t">${esc(post.ti)}</div><div class="sl-chips"><span class="tag ${tc.c}">${tc.i} ${tc.l}</span><span class="tag ${pc.c}">${pc.l}</span>${post.drive?'<span class="tag t-gg">Drive ✓</span>':''}</div></div><button class="sl-rm" onclick="rmPost('${k}',${d},${idx});renderSched()">×</button>`;
+    list.appendChild(item);
+  }));
+}
+
+// ── IDEA BANK ─────────────────────────────────────
+function toggleAdd(){S.addOpen=!S.addOpen;document.getElementById('add-panel').classList.toggle('on',S.addOpen);if(S.addOpen)setTimeout(()=>document.getElementById('fi-title').focus(),60);}
+function selAddT(e){document.querySelectorAll('#add-types .type-opt').forEach(o=>o.classList.remove('sel'));e.currentTarget.classList.add('sel');S.addT=e.currentTarget.dataset.t;}
+function saveIdea(){
+  const ti=document.getElementById('fi-title').value.trim();if(!ti){toast('Please enter a title');return;}
+  S.ideas.unshift({
+    id:Date.now(),ti,t:S.addT,p:document.getElementById('fi-plat').value,
+    hook:document.getElementById('fi-hook').value.trim(),
+    shots:[],caption:document.getElementById('rte-add-body').innerHTML,
+    hashtags:'',checklist:[],
+    drive:document.getElementById('fi-drive').value.trim(),
+    ftype:document.getElementById('fi-ftype').value,sched:false,used:false
+  });
+  ['fi-title','fi-hook','fi-drive'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fi-ftype').value='';rteSet('rte-add-body','rte-add-cnt','');
+  toggleAdd();renderBank();updOv();toast('Idea saved ✓');
+}
+function delIdea(id){if(!confirm('Delete this idea?'))return;S.ideas=S.ideas.filter(i=>i.id!==id);renderBank();updOv();toast('Removed');}
+function markUsed(id){const i=S.ideas.find(x=>x.id===id);if(i){i.used=!i.used;renderBank();updOv();toast(i.used?'Moved to Past Ideas ✓':'Moved back to Ready to use');}}
+function setSt(s){S.stfl=s;document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('on',t.dataset.s===s));renderBank();}
+function updStCnts(){
+  const a=S.ideas.length,u=S.ideas.filter(i=>i.used).length,p=S.ideas.filter(i=>!i.used).length;
+  _t('sc-a',a);_t('sc-p',p);_t('sc-u',u);
+}
+
+function setFl(f){S.fl=f;document.querySelectorAll('.fc').forEach(c=>c.classList.toggle('on',c.dataset.f===f));renderBank();}
+function renderBank(){
+  updStCnts();
+  const q=(document.getElementById('b-srch')?.value||'').toLowerCase();
+  const fd=S.ideas.filter(i=>{
+    const mt=S.fl==='all'||i.t===S.fl;
+    const ms=S.stfl==='all'||(S.stfl==='used'&&i.used)||(S.stfl==='pend'&&!i.used);
+    const mq=!q||i.ti.toLowerCase().includes(q)||(i.hook||'').toLowerCase().includes(q);
+    return mt&&ms&&mq;
+  });
+  _t('b-cnt',`${fd.length} idea${fd.length!==1?'s':''}`);
+  const grid=document.getElementById('bk-grid');if(!grid)return;
+  if(!fd.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-ic">◈</div>No ideas found.</div>';return;}
+  grid.innerHTML=fd.map(idea=>{
+    const tc=TC[idea.t]||TC.ed,pc=PC[idea.p]||PC.ig,fl=FL[idea.ftype]||'';
+    const shots=idea.shots||[];
+    const shotsPreview=shots.slice(0,2).map(sh=>`
+      <div class="ic-shot-row">
+        <div class="ic-shot-t">${esc(sh.time||'')}</div>
+        <div class="ic-shot-txt">${esc(sh.title||'')}${sh.spoken?' — '+sh.spoken:''}</div>
+      </div>`).join('');
+    const moreShots=shots.length>2?`<div class="ic-more-shots">+${shots.length-2} more shots</div>`:'';
+    const driveSnip=idea.drive
+      ?`<div class="ic-drive"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5L8.5 12.5M8.5 12.5L12 6L15.5 12.5M8.5 12.5H19.5M15.5 12.5L19.5 19.5M4.5 19.5H19.5" stroke="#4a90d9" stroke-width="1.5" stroke-linejoin="round"/></svg><div class="ic-drive-txt"><a href="${esc(idea.drive)}" target="_blank" onclick="event.stopPropagation()">Open in Drive ↗</a></div></div>`
+      :`<button class="dr-add" style="margin:0 0 2px;border-radius:7px;padding:5px 8px;font-size:10px" onclick="event.stopPropagation();qkDrive(${idea.id})"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5L8.5 12.5M8.5 12.5L12 6L15.5 12.5M8.5 12.5H19.5M15.5 12.5L19.5 19.5M4.5 19.5H19.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Attach Drive file</button>`;
+    return`<div class="ic ${idea.used?'used':''}" onclick="openIdea(${idea.id})">
+      <div class="ic-top">
+        <div class="ic-head">
+          <div class="ic-t">${esc(idea.ti)}</div>
+          <span class="tag ${tc.c}" style="flex-shrink:0">${tc.i} ${tc.l}</span>
+        </div>
+        ${idea.hook?`<div class="ic-hook">${esc(idea.hook)}</div>`:''}
+        ${shotsPreview?`<div class="ic-shots-preview">${shotsPreview}${moreShots}</div>`:''}
+        ${driveSnip}
+      </div>
+      <div class="ic-foot" onclick="event.stopPropagation()">
+        <span class="tag ${pc.c}">${pc.l}</span>
+        ${fl?`<span class="tag" style="background:var(--bg);color:var(--t3)">${fl}</span>`:''}
+        ${idea.used
+          ?'<span class="tag t-used" style="background:var(--goldbg);color:var(--gold);border:1px solid var(--goldbdr)">📅 In calendar</span>'
+          :'<span class="tag" style="background:var(--bg);color:var(--t3);border:1px solid var(--bd)">Ready to use</span>'}
+        <div class="ic-acts">
+          ${!idea.used
+            ?`<button class="ib" style="background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600" onclick="event.stopPropagation();openAddToCalFromIdea(${idea.id})">📅 Add to calendar</button>`
+            :`<button class="ib" onclick="event.stopPropagation();markUsed(${idea.id})">↩ Move back</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function qkDrive(id){const idea=S.ideas.find(i=>i.id===id);const url=prompt('Paste Google Drive link:',idea?idea.drive:'');if(url!==null&&idea){idea.drive=url.trim();renderBank();toast(url.trim()?'Link saved ✓':'Link removed');}}
+
+function openIdea(id){
+  const idea=S.ideas.find(i=>i.id===id);if(!idea)return;
+  const tc=TC[idea.t]||TC.ed,pc=PC[idea.p]||PC.ig,fl=FL[idea.ftype]||'';
+  const shots=idea.shots||[];
+
+  // Build shot-by-shot HTML
+  const shotsHtml=shots.map(sh=>`
+    <div class="id-shot">
+      <div class="id-shot-time">${esc(sh.time||'')}</div>
+      <div class="id-shot-body">
+        <div class="id-shot-title">${esc(sh.title||'')}</div>
+        ${sh.dir?`<div class="id-shot-dir">📹 ${esc(sh.dir)}</div>`:''}
+        ${sh.spoken?`<div class="id-shot-spoken">"${esc(sh.spoken)}"</div>`:''}
+      </div>
+    </div>`).join('');
+
+  // Drive row
+  const driveHtml=idea.drive
+    ?`<div class="dr-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5L8.5 12.5M8.5 12.5L12 6L15.5 12.5M8.5 12.5H19.5M15.5 12.5L19.5 19.5M4.5 19.5H19.5" stroke="#4a90d9" stroke-width="1.5" stroke-linejoin="round"/></svg><div class="dr-txt"><a href="${esc(idea.drive)}" target="_blank">Open in Drive ↗</a></div><button class="dr-edit" onclick="editIdeaDrive(${id})">edit</button></div>`
+    :`<button class="dr-add" onclick="editIdeaDrive(${id})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5L8.5 12.5M8.5 12.5L12 6L15.5 12.5M8.5 12.5H19.5M15.5 12.5L19.5 19.5M4.5 19.5H19.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Add Google Drive link</button>`;
+
+  document.getElementById('idea-body').innerHTML=`
+    <div style="display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap;align-items:center">
+      <span class="tag ${tc.c}">${tc.i} ${tc.l}</span>
+      <span class="tag ${pc.c}">${pc.l}</span>
+      ${fl?`<span class="tag" style="background:var(--bg);color:var(--t2)">${fl}</span>`:''}
+      ${idea.used
+        ?'<span class="tag" style="background:var(--goldbg);color:var(--gold);border:1px solid var(--goldbdr)">📅 In calendar</span>'
+        :'<span class="tag" style="background:var(--bg);color:var(--t3);border:1px solid var(--bd)">Ready to use</span>'}
+    </div>
+    <div style="font-size:19px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px;line-height:1.25">${esc(idea.ti)}</div>
+    ${idea.hook?`<div style="font-size:13px;color:var(--t2);line-height:1.55;padding:8px 11px;background:var(--bg);border-radius:var(--r);border-left:3px solid var(--bdh);font-style:italic;margin-bottom:16px">"${esc(idea.hook)}"</div>`:''}
+
+    ${shots.length?`
+    <div class="id-section">
+      <div class="id-sec-label">🎬 Shot-by-shot script</div>
+      <div class="id-shots">${shotsHtml}</div>
+    </div>`:''}
+
+    <!-- CAPTION — editable RTE -->
+    <button class="id-expand" onclick="toggleExpand(this)">
+      <span>📝 Caption &amp; hashtags</span><span>+</span>
+    </button>
+    <div class="id-expand-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;color:var(--t3)">Edit directly — changes save automatically when you close</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="copyIdeaCaption(${id})">Copy</button>
+          <button class="btn btn-sm btn-dk" id="cap-save-${id}" onclick="saveCaption(${id})" style="display:none">Save</button>
+        </div>
+      </div>
+      <div class="rte"><div class="rte-bar" id="rte-cap-bar-${id}"></div><div class="rte-body" id="rte-cap-${id}" contenteditable="true" data-ph="Write or edit the caption, hashtags..."></div><div class="rte-cnt" id="rte-cap-cnt-${id}">0 characters</div></div>
+    </div>
+
+    <!-- CHECKLIST — editable RTE -->
+    <button class="id-expand" onclick="toggleExpand(this)">
+      <span>☐ Production checklist</span><span>+</span>
+    </button>
+    <div class="id-expand-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;color:var(--t3)">Add, remove or edit tasks directly</span>
+        <button class="btn btn-sm btn-dk" id="chk-save-${id}" onclick="saveChecklist(${id})" style="display:none">Save</button>
+      </div>
+      <div class="rte"><div class="rte-bar" id="rte-chk-bar-${id}"></div><div class="rte-body" id="rte-chk-${id}" contenteditable="true" data-ph="Add production tasks, filming notes, posting instructions..."></div><div class="rte-cnt" id="rte-chk-cnt-${id}">0 characters</div></div>
+    </div>
+
+    <!-- EXTRA NOTES — editable RTE -->
+    <button class="id-expand" onclick="toggleExpand(this)">
+      <span>✏️ Extra notes &amp; script edits</span><span>+</span>
+    </button>
+    <div class="id-expand-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;color:var(--t3)">Free space for additional notes, revised script lines, ideas</span>
+        <button class="btn btn-sm btn-dk" id="note-save-${id}" onclick="saveNotes(${id})" style="display:none">Save</button>
+      </div>
+      <div class="rte"><div class="rte-bar" id="rte-note-bar-${id}"></div><div class="rte-body" id="rte-note-${id}" contenteditable="true" data-ph="Additional notes, revised lines, variations to try..."></div><div class="rte-cnt" id="rte-note-cnt-${id}">0 characters</div></div>
+    </div>
+
+    <!-- DRIVE -->
+    <div class="id-section" style="margin-top:14px">
+      <div class="id-sec-label">Google Drive file</div>
+      ${driveHtml}
+    </div>
+
+    <!-- AI REVIEW BOX (idea bank) -->
+    <div id="idea-ai-box-${id}" style="display:none;margin:12px 0;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🤖 AI Content Review</div>
+      <div id="idea-ai-result-${id}" style="font-size:12px;color:var(--t2);line-height:1.65"></div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--bd);flex-wrap:wrap;margin-top:4px">
+      <button class="btn btn-sm btn-gold" onclick="openAddToCalFromIdea(${id})">📅 Add to Calendar</button>
+      <button class="btn btn-sm" onclick="reviewIdeaContent(${id})" id="idea-ai-btn-${id}">✦ Review with AI</button>
+      ${idea.used
+        ?`<button class="btn btn-sm" onclick="markUsed(${id});closeIdea()">↩ Move back to Ready</button>`
+        :''}
+      <button class="btn btn-sm" style="margin-left:auto;color:var(--ttrt);border-color:var(--ttr)" onclick="delIdea(${id});closeIdea()">Delete</button>
+    </div>`;
+
+  document.getElementById('idea-ov').classList.add('on');
+
+  // Build all three RTEs
+  buildRTE(`rte-cap-bar-${id}`,`rte-cap-${id}`,`rte-cap-cnt-${id}`);
+  buildRTE(`rte-chk-bar-${id}`,`rte-chk-${id}`,`rte-chk-cnt-${id}`);
+  buildRTE(`rte-note-bar-${id}`,`rte-note-${id}`,`rte-note-cnt-${id}`);
+
+  // Load saved content into each RTE
+  // Caption: merge caption + hashtags into the editor if no edited version yet
+  const capContent = idea.captionEdited !== undefined
+    ? idea.captionEdited
+    : (idea.caption||'') + (idea.hashtags ? '\n\n'+idea.hashtags : '');
+  // Convert plain text to HTML for the RTE if it's not already HTML
+  const toRTEHtml = s => s.includes('<') ? s : s.split('\n').map(l=>l?`<p>${esc(l)}</p>`:'<p><br></p>').join('');
+  rteSet(`rte-cap-${id}`,`rte-cap-cnt-${id}`, toRTEHtml(capContent));
+
+  // Checklist: convert array to editable list if no edited version yet
+  const chkContent = idea.checklistEdited !== undefined
+    ? idea.checklistEdited
+    : (idea.checklist||[]).map(c=>`<p>☐ ${esc(c)}</p>`).join('');
+  rteSet(`rte-chk-${id}`,`rte-chk-cnt-${id}`, chkContent);
+
+  // Notes: free field
+  rteSet(`rte-note-${id}`,`rte-note-cnt-${id}`, idea.notes||'');
+
+  // Show save buttons on input
+  const watchRTE = (bodyId, btnId) => {
+    const el=document.getElementById(bodyId);
+    if(el) el.addEventListener('input',()=>{ const b=document.getElementById(btnId); if(b) b.style.display='inline-flex'; });
+  };
+  watchRTE(`rte-cap-${id}`, `cap-save-${id}`);
+  watchRTE(`rte-chk-${id}`, `chk-save-${id}`);
+  watchRTE(`rte-note-${id}`, `note-save-${id}`);
+}
+
+function saveCaption(id){
+  const idea=S.ideas.find(i=>i.id===id);
+  const body=document.getElementById(`rte-cap-${id}`);
+  if(idea&&body){idea.captionEdited=body.innerHTML;const b=document.getElementById(`cap-save-${id}`);if(b)b.style.display='none';toast('Caption saved ✓');}
+}
+function saveChecklist(id){
+  const idea=S.ideas.find(i=>i.id===id);
+  const body=document.getElementById(`rte-chk-${id}`);
+  if(idea&&body){idea.checklistEdited=body.innerHTML;const b=document.getElementById(`chk-save-${id}`);if(b)b.style.display='none';toast('Checklist saved ✓');}
+}
+function saveNotes(id){
+  const idea=S.ideas.find(i=>i.id===id);
+  const body=document.getElementById(`rte-note-${id}`);
+  if(idea&&body){idea.notes=body.innerHTML;const b=document.getElementById(`note-save-${id}`);if(b)b.style.display='none';toast('Notes saved ✓');}
+}
+function saveAllEditors(id){
+  // Auto-save all three editors before closing
+  const save=(bodyId,field)=>{const el=document.getElementById(bodyId);const idea=S.ideas.find(i=>i.id===id);if(el&&idea)idea[field]=el.innerHTML;};
+  save(`rte-cap-${id}`,'captionEdited');
+  save(`rte-chk-${id}`,'checklistEdited');
+  save(`rte-note-${id}`,'notes');
+}
+function saveAllAndPublish(id){
+  saveAllEditors(id);
+  closeIdea();
+}
+
+// ── ADD IDEA TO CALENDAR ──────────────────────────
+let ITC={ideaId:null,day:null,p:'ig',m:null,y:null};
+
+function openAddToCalFromIdea(id){
+  saveAllEditors(id); // auto-save editors before leaving
+  const idea=S.ideas.find(i=>i.id===id);if(!idea)return;
+  ITC={ideaId:id,day:null,p:idea.p||'ig',m:S.cal.m,y:S.cal.y};
+  document.getElementById('idea-ov').classList.remove('on');
+  document.getElementById('itc-subtitle').textContent=`Scheduling: "${idea.ti}"`;
+
+  // Populate month/year selects
+  const mSel=document.getElementById('itc-month');
+  const ySel=document.getElementById('itc-year');
+  mSel.innerHTML=MONTHS.map((m,i)=>`<option value="${i}" ${i===ITC.m?'selected':''}>${m}</option>`).join('');
+  const curY=new Date().getFullYear();
+  ySel.innerHTML=[curY,curY+1].map(y=>`<option value="${y}" ${y===ITC.y?'selected':''}>${y}</option>`).join('');
+  mSel.onchange=()=>{ITC.m=parseInt(mSel.value);ITC.day=null;renderITCGrid();};
+  ySel.onchange=()=>{ITC.y=parseInt(ySel.value);ITC.day=null;renderITCGrid();};
+
+  // Pre-select platform matching the idea
+  document.querySelectorAll('#itc-plats .plat-opt').forEach(o=>{
+    o.classList.toggle('sel',o.dataset.p===ITC.p);
+  });
+
+  renderITCGrid();
+  document.getElementById('itc-ov').classList.add('on');
+}
+
+function renderITCGrid(){
+  const grid=document.getElementById('itc-daygrid');
+  const days=new Date(ITC.y,ITC.m+1,0).getDate();
+  const first=new Date(ITC.y,ITC.m,1).getDay();
+  const data=S.cal.data[(ITC.m+1)+'-'+ITC.y]||{};
+  const today=new Date();
+
+  // Day headers
+  let html='';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{
+    html+=`<div style="text-align:center;font-size:9px;font-weight:600;color:var(--t3);padding:3px 0;letter-spacing:.05em">${d}</div>`;
+  });
+  // Empty cells
+  for(let i=0;i<first;i++) html+=`<div></div>`;
+  // Day cells
+  for(let d=1;d<=days;d++){
+    const isToday=today.getDate()===d&&today.getMonth()===ITC.m&&today.getFullYear()===ITC.y;
+    const hasPosts=!!(data[d]&&data[d].length);
+    const isSel=ITC.day===d;
+    html+=`<button type="button" onclick="selectITCDay(${d})" style="
+      border:2px solid ${isSel?'var(--t1)':'var(--bd)'};
+      border-radius:8px;padding:5px 2px;font-size:11px;font-weight:${isToday||isSel?'600':'400'};
+      cursor:pointer;background:${isSel?'var(--t1)':isToday?'var(--bg)':'var(--w)'};
+      color:${isSel?'var(--w)':isToday?'var(--t1)':'var(--t2)'};
+      position:relative;font-family:var(--font);transition:all .1s;
+    ">${d}${hasPosts?`<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:${isSel?'rgba(255,255,255,.6)':'var(--tbat)'};display:block"></span>`:''}
+    </button>`;
+  }
+  grid.innerHTML=html;
+}
+
+function selectITCDay(d){
+  ITC.day=d;
+  renderITCGrid();
+  const btn=document.getElementById('itc-confirm');
+  btn.disabled=false;btn.style.opacity='1';
+  btn.textContent=`Add to ${MONTHS[ITC.m]} ${d} →`;
+}
+
+function selITCP(e){
+  document.querySelectorAll('#itc-plats .plat-opt').forEach(o=>o.classList.remove('sel'));
+  e.currentTarget.classList.add('sel');
+  ITC.p=e.currentTarget.dataset.p;
+}
+
+function confirmITC(){
+  if(!ITC.day)return;
+  const idea=S.ideas.find(i=>i.id===ITC.ideaId);if(!idea)return;
+  const k=(ITC.m+1)+'-'+ITC.y;
+  if(!S.cal.data[k])S.cal.data[k]={};
+  if(!S.cal.data[k][ITC.day])S.cal.data[k][ITC.day]=[];
+  const tc=TC[idea.t]||TC.ed;
+  const body=idea.captionEdited||(idea.caption?(idea.caption+(idea.hashtags?'\n\n'+idea.hashtags:'')):tc.l);
+  S.cal.data[k][ITC.day].push({
+    t:idea.t,p:ITC.p,ti:idea.ti,body,
+    script:idea.notes||'',checklist:'',drive:idea.drive||''
+  });
+  // Adding to calendar = idea is now "in calendar" (past idea)
+  idea.used=true;
+  closeITC();
+  renderBank();updOv();
+  toast(`📅 Added to ${MONTHS[ITC.m]} ${ITC.day} — moved to Past Ideas`);
+}
+
+function closeITC(){
+  document.getElementById('itc-ov').classList.remove('on');
+}
+function copyIdeaCaption(id){
+  const el=document.getElementById(`rte-cap-${id}`);
+  if(!el)return;
+  navigator.clipboard.writeText(el.innerText||'').then(()=>toast('Caption copied ✓')).catch(()=>toast('Select text and copy manually'));
+}
+function saveIdeaNotes(id){saveNotes(id);} // legacy alias
+function editIdeaDrive(id){
+  const idea=S.ideas.find(i=>i.id===id);
+  const url=prompt('Paste Google Drive link:',idea?idea.drive:'');
+  if(url!==null&&idea){idea.drive=url.trim();openIdea(id);toast(url.trim()?'Link saved ✓':'Link removed');}
+}
+function closeIdea(){
+  // Auto-save all open editors before closing
+  document.querySelectorAll('[id^="rte-cap-"],[id^="rte-chk-"],[id^="rte-note-"]').forEach(el=>{
+    const parts=el.id.split('-');const field=parts[1];const id=parseInt(parts[parts.length-1]);
+    if(!id||isNaN(id))return;
+    const idea=S.ideas.find(i=>i.id===id);if(!idea)return;
+    if(field==='cap') idea.captionEdited=el.innerHTML;
+    else if(field==='chk') idea.checklistEdited=el.innerHTML;
+    else if(field==='note') idea.notes=el.innerHTML;
+  });
+  document.getElementById('idea-ov').classList.remove('on');
+  renderBank();
+}
+function toggleExpand(btn){
+  const body=btn.nextElementSibling;
+  const isOpen=body.classList.contains('on');
+  body.classList.toggle('on',!isOpen);
+  btn.querySelector('span:last-child').textContent=isOpen?'+':'−';
+}
+
+// ── RICH TEXT EDITOR ─────────────────────────────
+const RDEFS=[
+  {cmd:'bold',html:'<b>B</b>',title:'Bold'},
+  {cmd:'italic',html:'<i>I</i>',title:'Italic'},
+  {cmd:'underline',html:'<u>U</u>',title:'Underline'},
+  {sep:true},
+  {cmd:'ul',html:'≡',title:'Bullet list'},
+  {cmd:'ol',html:'①',title:'Numbered list'},
+  {cmd:'h3',html:'H3',title:'Heading'},
+  {cmd:'bq',html:'❝',title:'Quote'},
+  {sep:true},
+  {cmd:'e🔥',html:'🔥',title:'🔥'},{cmd:'e✅',html:'✅',title:'✅'},{cmd:'e👉',html:'👉',title:'👉'},
+  {cmd:'e📍',html:'📍',title:'📍'},{cmd:'e⭐',html:'⭐',title:'⭐'},{cmd:'e🏠',html:'🏠',title:'🏠'},
+  {cmd:'e🎬',html:'🎬',title:'🎬'},{cmd:'e📲',html:'📲',title:'📲'},
+  {sep:true},
+  {cmd:'cta',html:'+ CTA',title:'Insert CTA',w:true},
+  {cmd:'cl',html:'☐ List',title:'Checklist',w:true},
+];
+function buildRTE(barId,bodyId,cntId){
+  const bar=document.getElementById(barId),body=document.getElementById(bodyId),cnt=document.getElementById(cntId);
+  if(!bar||!body)return;bar.innerHTML='';
+  RDEFS.forEach(def=>{
+    if(def.sep){const s=document.createElement('div');s.className='rb-sep';bar.appendChild(s);return;}
+    const btn=document.createElement('button');btn.type='button';btn.className='rb'+(def.w?' rb-w':'');btn.innerHTML=def.html;btn.title=def.title||'';
+    btn.onmousedown=(e)=>{
+      e.preventDefault();body.focus();
+      if(def.cmd==='ul')document.execCommand('insertUnorderedList',false,null);
+      else if(def.cmd==='ol')document.execCommand('insertOrderedList',false,null);
+      else if(def.cmd==='h3')document.execCommand('formatBlock',false,'<h3>');
+      else if(def.cmd==='bq')document.execCommand('formatBlock',false,'<blockquote>');
+      else if(def.cmd.startsWith('e'))rteIns(body,def.cmd.slice(1)+' ');
+      else if(def.cmd==='cta')document.execCommand('insertHTML',false,'<br><br>👉 <strong>Ready to transform your bathroom?</strong> Message us now for a free estimate — McKinney, Allen &amp; Plano, TX. 📲');
+      else if(def.cmd==='cl')document.execCommand('insertHTML',false,'<br>☐ Task 1<br>☐ Task 2<br>☐ Task 3');
+      else document.execCommand(def.cmd,false,null);
+      updBtns(bar);rteCnt(body,cnt);
+    };
+    bar.appendChild(btn);
+  });
+  body.addEventListener('keyup',()=>{updBtns(bar);rteCnt(body,cnt);});
+  body.addEventListener('mouseup',()=>updBtns(bar));
+  body.addEventListener('input',()=>rteCnt(body,cnt));
+  body.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();document.execCommand('insertHTML',false,'&nbsp;&nbsp;&nbsp;');}});
+}
+function rteIns(body,text){const sel=window.getSelection();if(sel.rangeCount){const r=sel.getRangeAt(0);r.deleteContents();r.insertNode(document.createTextNode(text));r.collapse(false);sel.removeAllRanges();sel.addRange(r);}else body.innerHTML+=text;}
+function updBtns(bar){bar.querySelectorAll('.rb').forEach(btn=>{const def=RDEFS.find(d=>!d.sep&&!d.w&&d.title===btn.title);if(!def||['ul','ol','h3','bq','cta','cl'].includes(def.cmd)||def.cmd.startsWith('e'))return;btn.classList.toggle('act',document.queryCommandState(def.cmd));});}
+function rteCnt(body,cnt){if(!cnt)return;const len=(body.innerText||'').replace(/\n/g,'').length;cnt.textContent=len+' character'+(len!==1?'s':'');cnt.style.color=len>2200?'#b84f38':'var(--t3)';}
+function rteSet(bodyId,cntId,html){const body=document.getElementById(bodyId),cnt=document.getElementById(cntId);if(body)body.innerHTML=html||'';if(body&&cnt)rteCnt(body,cnt);}
+
+// ── COMPETITOR DATA ───────────────────────────────
+const COMPETITORS=[
+  {
+    id:'bathenvy',
+    name:'Bath Envy Remodeling',
+    location:'McKinney, TX',
+    website:'bathenvy.com',
+    icon:'🛁',
+    color:'#e8f0fe',
+    textColor:'#1a3f7a',
+    tagline:'Custom showers & baths · 20 years experience · family owned',
+    social:{ig:'@bathenvycustom · 179 followers · 73 posts',tk:'Not found',fb:'Active',yt:'Not found'},
+    socialScore:1,
+    strengths:[
+      '20+ years in business — strong local reputation',
+      'Specializes in master bathrooms + custom vanities',
+      'Offers a 5-year workmanship warranty',
+      'Downtown McKinney location — strong local identity',
+    ],
+    weaknesses:[
+      'Instagram: only 179 followers and 73 posts — minimal social presence',
+      'No TikTok presence found',
+      'No short-form video content at all',
+      'Website-only lead gen — no content engine',
+      'No visible before/after Reels or cost transparency posts',
+    ],
+    content:'Occasional project photos on Instagram. No consistent posting cadence. No video content. No TikTok.',
+    opportunity:'Their social silence is NVHR\'s loudest opportunity. Any homeowner researching on Instagram or TikTok will find NVHR first.',
+  },
+  {
+    id:'bathpros',
+    name:'The Bath Pros',
+    location:'Frisco / McKinney / Allen / Plano, TX',
+    website:'thebathpros.com',
+    icon:'🚿',
+    color:'#fdeef0',
+    textColor:'#7a1a28',
+    tagline:'BBB A+ rated · shower-to-bath conversions · high-end positioning',
+    social:{ig:'Not active',tk:'Not found',fb:'Active — runs ads',yt:'Not found'},
+    socialScore:2,
+    strengths:[
+      'Strong BBB A+ rating and professional website',
+      'Has digital marketing agency (E67 Agency) running campaigns',
+      'Broad Collin County service area',
+      'Active Facebook advertising',
+    ],
+    weaknesses:[
+      'No Instagram or TikTok content strategy',
+      'Focuses on high-end only — misses mid-range homeowner market',
+      'No educational or "tips" content — purely transactional',
+      'Facebook ads without organic content = expensive leads',
+      'No behind-the-scenes or process videos anywhere',
+    ],
+    content:'Facebook ads running, but no organic short-form video. No Instagram Reels. No educational or BTS content visible.',
+    opportunity:'They\'re paying for every lead with ads. NVHR can earn the same leads for free with organic content while building long-term brand equity.',
+  },
+  {
+    id:'footprints',
+    name:'Footprints Bath & Tile',
+    location:'McKinney / Plano, TX',
+    website:'footprintsbathandtile.com',
+    icon:'🏗️',
+    color:'#fdf3e7',
+    textColor:'#7a4a10',
+    tagline:'Tile specialists · NTCA member · partial & full remodels',
+    social:{ig:'Minimal',tk:'Not found',fb:'Some activity',yt:'Not found'},
+    socialScore:1,
+    strengths:[
+      'NTCA (National Tile Contractors Association) member — credibility signal',
+      'Sister company Footprints Floors adds flooring angle',
+      'Focus on partial remodels — lower barrier to entry for leads',
+      'Good process documentation on website',
+    ],
+    weaknesses:[
+      'Near-zero social media presence',
+      'No video content found on any platform',
+      'No local content showing McKinney/Plano projects specifically',
+      'No pricing transparency anywhere',
+      'No personality or brand voice — purely corporate',
+    ],
+    content:'Some Facebook posts. No video, no Reels, no TikTok. Website SEO is their main channel.',
+    opportunity:'Pure SEO play with no social content. NVHR owning TikTok + Reels gets in front of the homeowners Footprints never reaches.',
+  },
+  {
+    id:'dfwimproved',
+    name:'DFW Improved',
+    location:'Plano showroom · serves McKinney/Allen',
+    website:'dfwimproved.com',
+    icon:'🏠',
+    color:'#f0eafa',
+    textColor:'#4a1a7a',
+    tagline:'20+ years · luxury focus · showroom · kitchen + bath',
+    social:{ig:'Active — project photos',tk:'Not found',fb:'Active',yt:'Some videos'},
+    socialScore:3,
+    strengths:[
+      '20+ years in business — strong brand recognition',
+      'Physical showroom in Plano (major trust signal)',
+      'Higher budget projects — kitchen + bath + additions',
+      'Most social-media-active competitor in the market',
+      'Some YouTube project videos',
+    ],
+    weaknesses:[
+      'Positioned luxury/high-end — not accessible to average homeowner',
+      'No TikTok presence',
+      'No short-form educational or tips content',
+      'Social content is polished but not personal or relatable',
+      'No on-camera owner/team personality — feels corporate',
+      'Much higher price point — different buyer than NVHR\'s core market',
+    ],
+    content:'Most active competitor on social. Instagram project photos + some Facebook content. No Reels strategy, no TikTok, no educational video.',
+    opportunity:'They\'re polished but cold. NVHR can win the "relatable local expert" position — real owner on camera, real projects, real prices. Homeowners trust people, not corporations.',
+  },
+  {
+    id:'bathtune',
+    name:'Bath Tune-Up (Franchise)',
+    location:'McKinney / Allen, TX',
+    website:'bathtune-up.com',
+    icon:'🔧',
+    color:'#e8f5ec',
+    textColor:'#1a6b35',
+    tagline:'Franchise brand · curated design collections · financing available',
+    social:{ig:'National account only',tk:'Not found',fb:'Some franchise activity',yt:'National brand only'},
+    socialScore:1,
+    strengths:[
+      'National franchise brand recognition',
+      'Curated design collections — simplified selection process',
+      'Strong financing offer (multiple options)',
+      'Responds within 24 hours — customer service focus',
+    ],
+    weaknesses:[
+      'Franchise model = no local personality or community connection',
+      'Social media is all national brand — zero local content',
+      'No local McKinney/Plano/Allen specific content at all',
+      'Homeowners can\'t connect with "who" they\'re hiring',
+      'Corporate voice doesn\'t build the personal trust that converts',
+    ],
+    content:'National brand does corporate social. Local franchise has no independent social presence.',
+    opportunity:'The franchise weakness is NVHR\'s biggest strength. NVHR can say "we\'re YOUR neighbors in McKinney" — a franchise never can.',
+  },
+  {
+    id:'manning',
+    name:'Manning Remodeling + Construction',
+    location:'Plano, TX · serves Collin County',
+    website:'manningrandc.com',
+    icon:'🔨',
+    color:'#fff0f6',
+    textColor:'#8b1a4a',
+    tagline:'General contractor · kitchen + bath + additions · high-end',
+    social:{ig:'Not active',tk:'Not found',fb:'Minimal',yt:'Not found'},
+    socialScore:1,
+    strengths:[
+      'Full general contractor scope — additions, kitchens, full homes',
+      'Professional website with project gallery',
+      'Serves full Collin + Denton County area',
+    ],
+    weaknesses:[
+      'No social media presence of any significance',
+      'No video content anywhere',
+      'No pricing transparency',
+      'No educational content — leads must come from referrals or SEO only',
+      'Broader scope means less bathroom remodel specialization',
+    ],
+    content:'Minimal social presence. No content strategy visible.',
+    opportunity:'They depend entirely on referrals. NVHR showing up on TikTok and Instagram creates a lead channel Manning literally doesn\'t have.',
+  },
+];
+
+const CONTENT_GAPS=[
+  {content:'TikTok presence',nvhr:'✅ Building now',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'❌',bathtune:'❌',manning:'❌'},
+  {content:'Instagram Reels',nvhr:'✅ Building now',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'⚠️ Minimal',bathtune:'❌',manning:'❌'},
+  {content:'Educational tips video',nvhr:'✅ Planned',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'❌',bathtune:'❌',manning:'❌'},
+  {content:'Price transparency content',nvhr:'✅ Yes',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'❌',bathtune:'❌',manning:'❌'},
+  {content:'Owner on camera / personality',nvhr:'✅ Yes',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'❌',bathtune:'❌',manning:'❌'},
+  {content:'Before & after Reels',nvhr:'✅ Planned',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'⚠️ Photos only',bathtune:'❌',manning:'❌'},
+  {content:'Behind-the-scenes video',nvhr:'✅ Planned',bathenvy:'❌',bathpros:'❌',footprints:'❌',dfwimproved:'❌',bathtune:'❌',manning:'❌'},
+  {content:'Local McKinney/Allen content',nvhr:'✅ Yes',bathenvy:'⚠️ Minimal',bathpros:'⚠️ Website only',footprints:'⚠️ Website only',dfwimproved:'⚠️ Some',bathtune:'❌',manning:'⚠️ Minimal'},
+  {content:'Google reviews strategy',nvhr:'✅ Active',bathenvy:'✅ Strong',bathpros:'✅ Strong',footprints:'⚠️ Some',dfwimproved:'✅ Strong',bathtune:'⚠️ Franchise',manning:'⚠️ Some'},
+  {content:'Facebook organic content',nvhr:'✅ Planned',bathenvy:'⚠️ Occasional',bathpros:'✅ Ads running',footprints:'⚠️ Minimal',dfwimproved:'✅ Active',bathtune:'⚠️ National only',manning:'❌'},
+];
+
+const ACTION_PLAN=[
+  {
+    priority:'🔴 Immediate — do this week',
+    color:'#fdeef0',
+    border:'#f5c0c8',
+    items:[
+      {title:'Post your first TikTok',body:'None of your 5 direct competitors are on TikTok. The first "bathroom remodeling McKinney TX" video that shows up there will be yours. Film one today — it doesn\'t need to be perfect.'},
+      {title:'Claim the "transparent pricing" position',body:'Zero competitors share real price ranges publicly. A single Facebook or TikTok post — "What does a bathroom remodel cost in Plano in 2025?" — gets you leads from homeowners who are already in decision mode.'},
+      {title:'Start a before/after Reels series',body:'DFW Improved posts project photos. Nobody posts Reels. Every project you finish is content that none of your competitors have.'},
+    ]
+  },
+  {
+    priority:'🟡 This month — build momentum',
+    color:'#fdf3e7',
+    border:'#f5d8a0',
+    items:[
+      {title:'Get the owner on camera once a week',body:'DFW Improved is the most active competitor but their content is polished and corporate. Your advantage is being a real person homeowners can trust. One 30-second "tip of the week" video outperforms their entire gallery.'},
+      {title:'Post behind-the-scenes daily during active projects',body:'Stories and BTS clips cost nothing and build more trust than any ad. Film morning setup + end-of-day cleanup on every job. None of your competitors do this.'},
+      {title:'Make Google reviews a post-job ritual',body:'Bath Envy, Bath Pros, and DFW Improved all have strong review counts. This is the one area where they\'re ahead. Add a Google review ask to every job handoff — consistently.'},
+    ]
+  },
+  {
+    priority:'🟢 30–90 days — establish dominance',
+    color:'#e8f5ec',
+    border:'#a8dbb8',
+    items:[
+      {title:'Own the "local expert" position on social',body:'"McKinney homeowner shares bathroom before/after" — that\'s content DFW Improved (Plano-based) and Bath Tune-Up (franchise) literally cannot create. Hyper-local content is your moat.'},
+      {title:'Build a content series around your process',body:'"7-day bathroom remodel — day by day" as a TikTok series. One post per day on a live job. By day 7 you have 7 pieces of content, new followers, and a completed case study. No competitor has attempted this.'},
+      {title:'Run a low-budget Facebook ad using your best organic content',body:'Bath Pros runs ads with no organic content underneath. Use your best-performing organic post and boost it for $15/day in Collin County. The combination of organic trust + paid reach is what separates content-driven businesses from ad-dependent ones.'},
+    ]
+  },
+];
+
+function renderComp(){
+  // Competitor cards
+  const grid=document.getElementById('comp-grid');
+  if(!grid)return;
+  const scoreLabel={1:'⚠️ Minimal',2:'📱 Some activity',3:'✅ Active',4:'🚀 Strong'};
+  grid.innerHTML=COMPETITORS.map(c=>`
+    <div style="background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow=''">
+      <div style="background:${c.color};padding:14px 18px 12px;border-bottom:1px solid var(--bd)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-size:22px">${c.icon}</span>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:${c.textColor};letter-spacing:-.01em">${c.name}</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:1px">📍 ${c.location}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--t2);font-style:italic">${c.tagline}</div>
+      </div>
+      <div style="padding:14px 18px">
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Social media</div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            ${Object.entries(c.social).map(([k,v])=>`<div style="display:flex;gap:8px;font-size:11px"><span style="color:var(--t3);min-width:28px;font-weight:600">${k.toUpperCase()}</span><span style="color:var(--t2)">${v}</span></div>`).join('')}
+          </div>
+          <div style="margin-top:8px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;display:inline-flex;background:${c.socialScore<=1?'var(--ttr)':c.socialScore===2?'var(--tco)':'var(--tba)'};color:${c.socialScore<=1?'var(--ttrt)':c.socialScore===2?'var(--tcot)':'var(--tbat)'}">Social presence: ${scoreLabel[c.socialScore]||'Unknown'}</div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Their strengths</div>
+          ${c.strengths.map(s=>`<div style="font-size:11px;color:var(--t2);padding:2px 0;display:flex;gap:6px"><span style="color:var(--tbat);flex-shrink:0">+</span>${s}</div>`).join('')}
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Their weaknesses</div>
+          ${c.weaknesses.map(w=>`<div style="font-size:11px;color:var(--t2);padding:2px 0;display:flex;gap:6px"><span style="color:var(--ttrt);flex-shrink:0">−</span>${w}</div>`).join('')}
+        </div>
+        <div style="background:var(--bg);border-radius:var(--r);padding:9px 11px;border-left:3px solid var(--bdh)">
+          <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">NVHR opportunity</div>
+          <div style="font-size:11px;color:var(--t1);line-height:1.55">${c.opportunity}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Gap table
+  const tbl=document.getElementById('gap-table');
+  if(tbl){
+    const cols=['content','nvhr','bathenvy','bathpros','footprints','dfwimproved','bathtune','manning'];
+    const headers={'content':'Content type','nvhr':'NVHR','bathenvy':'Bath Envy','bathpros':'Bath Pros','footprints':'Footprints','dfwimproved':'DFW Improved','bathtune':'Bath Tune-Up','manning':'Manning'};
+    tbl.innerHTML=`<thead><tr>${cols.map(c=>`<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--bd);white-space:nowrap;background:var(--bg)">${headers[c]}</th>`).join('')}</tr></thead>
+    <tbody>${CONTENT_GAPS.map((r,i)=>`<tr style="background:${i%2===0?'var(--w)':'#fafaf9'}">${cols.map(c=>`<td style="padding:7px 10px;font-size:${c==='content'?'12px':'13px'};color:${c==='nvhr'?'var(--tbat)':'var(--t2)'};font-weight:${c==='content'||c==='nvhr'?'500':'400'};border-bottom:1px solid var(--bd);white-space:nowrap">${r[c]||'—'}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  }
+
+  // Action plan
+  const ap=document.getElementById('action-plan');
+  if(ap){
+    ap.innerHTML=ACTION_PLAN.map(phase=>`
+      <div style="background:${phase.color};border:1px solid ${phase.border};border-radius:var(--r);padding:14px 16px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:10px">${phase.priority}</div>
+        ${phase.items.map(item=>`
+          <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid ${phase.border}">
+            <div style="font-size:12px;font-weight:600;color:var(--t1);margin-bottom:3px">→ ${item.title}</div>
+            <div style="font-size:11px;color:var(--t2);line-height:1.6">${item.body}</div>
+          </div>`).join('')}
+      </div>`).join('');
+  }
+}
+
+// ── AI CONTENT REVIEW ────────────────────────────
+async function reviewIdeaContent(id){
+  const idea=S.ideas.find(i=>i.id===id);if(!idea)return;
+  const capEl=document.getElementById(`rte-cap-${id}`);
+  const caption=(capEl?capEl.innerText:(idea.captionEdited?'':idea.caption))||'';
+  const shots=(idea.shots||[]).map(s=>`[${s.time}] ${s.title}: ${s.spoken||''}`).join('\n');
+  const platLabels={ig:'Instagram',reels:'Instagram Reels',tk:'TikTok',fb:'Facebook',gg:'Google Business',nd:'Nextdoor'};
+  const platName=platLabels[idea.p]||idea.p;
+  if(!caption&&!shots){toast('Add a caption or script first');return;}
+  const content={title:idea.ti,platform:platName,hook:idea.hook||'',caption,script:shots};
+  await runAIReview(`idea-ai-box-${id}`,`idea-ai-result-${id}`,`idea-ai-btn-${id}`,content);
+}
+
+async function reviewCalPost(mode){
+  const isPM=mode==='pm';
+  const titleEl=isPM?document.getElementById('pm-ti'):null;
+  const bodyEl=isPM?document.getElementById('rte-pm-body'):document.getElementById('rte-det-body');
+  const scriptEl=isPM?document.getElementById('rte-pm-script'):document.getElementById('rte-det-script');
+  const platSel=isPM?document.querySelector('#pm-plats .plat-opt.sel'):null;
+  const title=titleEl?titleEl.value.trim():(S.vp?(S.cal.data[S.vp.k]?.[S.vp.d]?.[S.vp.idx]?.ti||''):'');
+  const caption=bodyEl?(bodyEl.innerText||'').trim():'';
+  const script=scriptEl?(scriptEl.innerText||'').trim():'';
+  const platform=platSel?platSel.dataset.p:(S.vp?(S.cal.data[S.vp.k]?.[S.vp.d]?.[S.vp.idx]?.p||'ig'):'ig');
+  const platLabels={ig:'Instagram',reels:'Instagram Reels',tk:'TikTok',fb:'Facebook',gg:'Google Business',nd:'Nextdoor'};
+  if(!caption&&!script){toast('Add a caption or script first');return;}
+  const content={title,platform:platLabels[platform]||platform,hook:title,caption,script};
+  await runAIReview(isPM?'pm-ai-box':'det-ai-box',isPM?'pm-ai-result':'det-ai-result',isPM?'pm-ai-btn':'det-ai-btn',content);
+}
+
+async function runAIReview(boxId,resultId,btnId,content){
+  const box=document.getElementById(boxId);
+  const result=document.getElementById(resultId);
+  const btn=document.getElementById(btnId);
+  if(!box||!result||!btn)return;
+
+  box.style.display='block';
+  btn.disabled=true;
+  btn.innerHTML='<span style="display:inline-flex;align-items:center;gap:5px"><span class="ai-spin">◌</span>Analyzing…</span>';
+
+  // Animated loading state
+  result.innerHTML=`
+    <div class="ai-loading">
+      <div class="ai-loading-bar"><div class="ai-loading-fill"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:8px" id="${resultId}-msg">Reading your content…</div>
+    </div>`;
+
+  const msgs=[
+    'Reading your content…',
+    'Checking hook strength…',
+    'Comparing to what competitors post…',
+    'Analyzing CTA and platform fit…',
+    'Writing your feedback…'
+  ];
+  let mi=0;
+  const msgInterval=setInterval(()=>{
+    mi=(mi+1)%msgs.length;
+    const el=document.getElementById(`${resultId}-msg`);
+    if(el)el.textContent=msgs[mi];
+  },900);
+
+  const prompt=`You are a sharp, no-BS social media strategist for a home remodeling company. Your job is to review content and give HONEST, SPECIFIC feedback that helps them beat their local competition in McKinney, Allen, and Plano, Texas.
+
+COMPANY: New Value Home Remodeling
+Services: bathroom remodel, flooring, interior painting
+Market: Collin County, TX — homeowners 35–60, middle to upper-middle class
+Competitors: Bath Envy (179 IG followers, no TikTok), The Bath Pros (Facebook ads only, no organic video), DFW Improved (most active but corporate/cold), Footprints Bath & Tile (SEO only), Bath Tune-Up (franchise, zero local personality)
+NVHR competitive edge: real owner on camera, local McKinney content, TikTok/Reels, price transparency, behind-the-scenes
+
+CONTENT TO REVIEW:
+Title/Hook: ${content.title}
+Platform: ${content.platform}
+Hook line: ${content.hook||'(same as title)'}
+Caption: ${content.caption||'(not provided)'}
+${content.script?`Script: ${content.script}`:''}
+
+Return your review as a JSON object ONLY (no markdown, no backticks, no explanation outside the JSON):
+{
+  "score": <number 1-10>,
+  "verdict": "<one punchy sentence — honest, not generic>",
+  "hook": {"rating": "<Strong|Okay|Weak>", "feedback": "<1-2 sentences specific to THIS hook>", "rewrite": "<rewritten hook — make it better>"},
+  "cta": {"rating": "<Strong|Okay|Missing>", "feedback": "<1-2 sentences>"},
+  "platform": {"rating": "<Perfect fit|Good fit|Wrong format>", "feedback": "<1 sentence specific to ${content.platform}>"},
+  "vsCompetitors": "<1-2 sentences — does this beat what Bath Envy/Bath Pros/DFW Improved posts? Be specific>",
+  "localAngle": {"rating": "<Strong|Weak|Missing>", "feedback": "<does it feel McKinney/Collin County or generic Texas?>"},
+  "quickWins": ["<specific actionable fix 1>", "<specific actionable fix 2>", "<specific actionable fix 3>"]
+}`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    clearInterval(msgInterval);
+    const data=await resp.json();
+    let raw=data?.content?.[0]?.text||'';
+    // Strip any markdown code fences if present
+    raw=raw.replace(/```json|```/g,'').trim();
+    let r;
+    try{ r=JSON.parse(raw); }
+    catch(e){ throw new Error('parse_fail:'+raw.slice(0,80)); }
+    renderAIReview(result,r,content.platform);
+  }catch(e){
+    clearInterval(msgInterval);
+    // Fallback: show error with hint
+    result.innerHTML=`<div style="padding:12px;background:#fdeef0;border-radius:var(--r);border:1px solid #f5c0c8">
+      <div style="font-size:12px;font-weight:600;color:var(--ttrt);margin-bottom:4px">⚠️ Could not connect to AI</div>
+      <div style="font-size:11px;color:var(--t2)">This feature requires the Claude.ai interface to work. Make sure you're viewing the dashboard inside Claude.ai (not a downloaded file).</div>
+    </div>`;
+  }
+  btn.disabled=false;
+  btn.innerHTML='✦ Review again';
+}
+
+function renderAIReview(el,r,platform){
+  var scoreColor=r.score>=8?'#1a6b35':r.score>=6?'#7a4a10':'#7a1a28';
+  var scoreBg=r.score>=8?'#e8f5ec':r.score>=6?'#fdf3e7':'#fdeef0';
+  var scoreLabel=r.score>=8?'&#128293; Strong content &mdash; ready to post':r.score>=6?'&#9889; Good &mdash; needs small tweaks':'&#9888;&#65039; Needs work before posting';
+
+  function badge(rating,good,mid){
+    var colorMap={'Strong':good,'Perfect fit':good,'Okay':mid,'Good fit':mid,'Missing':'#fdeef0','Weak':'#fdeef0','Wrong format':'#fdeef0'};
+    var textMap={'Strong':'#1a6b35','Perfect fit':'#1a6b35','Okay':'#7a4a10','Good fit':'#7a4a10','Missing':'#7a1a28','Weak':'#7a1a28','Wrong format':'#7a1a28'};
+    var bg=colorMap[rating]||mid, tc=textMap[rating]||'#7a4a10';
+    return '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:'+bg+';color:'+tc+'">'+rating+'</span>';
+  }
+
+  function metricCard(label,rating,feedback){
+    return '<div style="background:var(--bg);border-radius:var(--r);padding:10px 12px;border:1px solid var(--bd)">'
+      +'<div style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">'+label+'</div>'
+      +badge(rating,'#e8f5ec','#fdf3e7')
+      +'<div style="font-size:11px;color:var(--t2);margin-top:5px;line-height:1.5">'+(feedback||'')+'</div>'
+      +'</div>';
+  }
+
+  var hookRating=(r.hook&&r.hook.rating)||'';
+  var hookFeedback=(r.hook&&r.hook.feedback)||'';
+  var hookRewrite=(r.hook&&r.hook.rewrite)||'';
+  var ctaRating=(r.cta&&r.cta.rating)||'';
+  var ctaFeedback=(r.cta&&r.cta.feedback)||'';
+  var platRating=(r.platform&&r.platform.rating)||'';
+  var platFeedback=(r.platform&&r.platform.feedback)||'';
+  var localRating=(r.localAngle&&r.localAngle.rating)||'';
+  var localFeedback=(r.localAngle&&r.localAngle.feedback)||'';
+
+  var html='';
+
+  // Score header
+  html+='<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:'+scoreBg+';border-radius:var(--r);border:1px solid '+scoreColor+'33;margin-bottom:14px">'
+    +'<div style="font-size:34px;font-weight:300;color:'+scoreColor+';line-height:1;letter-spacing:-.03em">'+r.score+'<span style="font-size:16px;color:'+scoreColor+'99">/10</span></div>'
+    +'<div>'
+      +'<div style="font-size:12px;font-weight:600;color:'+scoreColor+';margin-bottom:2px">'+scoreLabel+'</div>'
+      +'<div style="font-size:12px;color:var(--t2);line-height:1.5">'+(r.verdict||'')+'</div>'
+    +'</div>'
+  +'</div>';
+
+  // Metrics row
+  html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">'
+    +metricCard('Hook',hookRating,hookFeedback)
+    +metricCard('CTA',ctaRating,ctaFeedback)
+    +metricCard(platform+' fit',platRating,platFeedback)
+  +'</div>';
+
+  // Hook rewrite
+  if(hookRewrite){
+    html+='<div style="background:#f0f4ff;border-radius:var(--r);padding:12px 14px;border:1px solid #c8d8f8;margin-bottom:12px">'
+      +'<div style="font-size:10px;font-weight:700;color:#1a3f7a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">&#9999;&#65039; Stronger hook &mdash; try this instead</div>'
+      +'<div style="font-size:13px;color:#111;font-style:italic;line-height:1.55">&ldquo;'+hookRewrite+'&rdquo;</div>'
+    +'</div>';
+  }
+
+  // vs Competitors
+  html+='<div style="background:#fff8e6;border-radius:var(--r);padding:12px 14px;border:1px solid #f5d87a;margin-bottom:12px">'
+    +'<div style="font-size:10px;font-weight:700;color:#7a4a10;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">&#9876;&#65039; vs. Bath Envy, Bath Pros &amp; DFW Improved</div>'
+    +'<div style="font-size:12px;color:var(--t1);line-height:1.6">'+(r.vsCompetitors||'')+'</div>'
+  +'</div>';
+
+  // Local angle
+  html+='<div style="background:var(--bg);border-radius:var(--r);padding:11px 13px;border:1px solid var(--bd);margin-bottom:12px;display:flex;align-items:flex-start;gap:10px">'
+    +'<span style="font-size:16px;flex-shrink:0">&#128205;</span>'
+    +'<div>'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Local angle &mdash; McKinney / Collin County '+badge(localRating,'#e8f5ec','#fdf3e7')+'</div>'
+      +'<div style="font-size:12px;color:var(--t2);line-height:1.55;margin-top:4px">'+localFeedback+'</div>'
+    +'</div>'
+  +'</div>';
+
+  // Quick wins
+  if(r.quickWins&&r.quickWins.length){
+    html+='<div style="background:var(--navy);border-radius:var(--r);padding:12px 14px">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--gold2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">3 quick wins</div>';
+    r.quickWins.forEach(function(w,i){
+      html+='<div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:'+(i<r.quickWins.length-1?'7px':'0')+'">'
+        +'<span style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px">'+(i+1)+'</span>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.55">'+w+'</div>'
+      +'</div>';
+    });
+    html+='</div>';
+  }
+
+  el.innerHTML=html;
+}
+
+// ── INSPIRATION ───────────────────────────────────
+S.inspo=[
+  {id:'r1',p:'tk',t:'ed',account:'@madalenatile',platform_label:'TikTok',
+   url:'https://www.tiktok.com/@madalenatile',
+   stats:'556K likes · 1,300 comments · TikTok',
+   hook:'One Percent Club 🛀🏽 — close-up tile work ASMR, no voiceover',
+   why:'Pure tile-setting ASMR with zero voiceover. The satisfying sound of grout and perfectly aligned tiles is the entire hook. 556K likes prove that craft footage alone — no talking, no script — drives massive engagement when the work is exceptional. The "One Percent Club" positions quality work as exclusive and aspirational.',
+   adapt:'Film a tight close-up timelapse of your best tile installation on the next McKinney project. No voiceover, no music — just the ASMR of trowel, grout, level checks. Caption: "This is what separates a 5-star bathroom from a contractor nightmare. McKinney, TX — free estimate link in bio."',
+   search:'madalenatile tiktok tile asmr'},
+  {id:'r2',p:'tk',t:'ba',account:'@mountaintopremodeling',platform_label:'TikTok',
+   url:'https://www.tiktok.com/@mountaintopremodeling',
+   stats:'15.5 million views · TikTok',
+   hook:'Before/after bathroom with trending audio — no production, pure result',
+   why:'15.5 MILLION views on a single local contractor bathroom reveal. The secret: let the transformation do all the talking. Trending audio, clean cuts, the after held long enough to feel the impact. No professional equipment — just a phone. Proves any local contractor can go viral with great work and the right format.',
+   adapt:'Replicate shot-for-shot on your next complete bathroom. Hold the before for 3 seconds. Let the reveal breathe. Use whatever audio is trending that week. Do not add voiceover — silence + trending audio is the formula.',
+   search:'mountaintopremodeling tiktok bathroom before after'},
+  {id:'r3',p:'tk',t:'tr',account:'@takeahammertoit',platform_label:'TikTok',
+   url:'https://www.tiktok.com/@takeahammertoit',
+   stats:'90.8K likes · 1,700 comments · TikTok',
+   hook:'"This contractor\'s mindset is to cut corners and get it \'good enough\'. You will have problems later."',
+   why:'90K likes from exposing bad contractor work. Comment section fills with homeowners sharing horror stories — keeps engagement snowballing for days. This format works because it triggers fear AND implies the solution. Every "bad contractor" post is an implicit "hire me instead" ad. No competitor in Collin County is doing this.',
+   adapt:'Film a quick walkthrough of bad contractor work you\'ve seen in North Texas — cracked grout from bad prep, uneven tile, sloppy caulk. No need to name anyone. End with: "This is why we do it right the first time. McKinney homeowners — free estimate at link in bio."',
+   search:'takeahammertoit tiktok bad contractor'},
+  {id:'r4',p:'tk',t:'ba',account:'@refinishwithjade',platform_label:'TikTok',
+   url:'https://www.tiktok.com/@refinishwithjade',
+   stats:'99.9K likes · 793 comments · TikTok',
+   hook:'"Watch as a bland bathroom gets a total makeover with DIY magic! From demolition to tiling."',
+   why:'Nearly 100K likes on a full process reveal — demo through final reveal in one video. The structure is the hook: each phase (demo, cement board, tile, reveal) creates mini-hooks that keep people watching. High save rate because people want to reference it. You\'re a professional, not DIY — which makes your version even more impressive.',
+   adapt:'Create a "demo to done" 60-second video for your next full bathroom. Hit every phase. Caption: "This is what 7 professional days looks like when you hire the right team in McKinney, TX."',
+   search:'refinishwithjade tiktok bathroom makeover demo'},
+  {id:'r5',p:'reels',t:'ba',account:'@casamrtn — Michelle | Casa Martin',platform_label:'TikTok / Reels',
+   url:'https://www.tiktok.com/@casamrtn',
+   stats:'26.3K likes · 260 comments · TikTok',
+   hook:'"It\'s been awhile since I\'ve shared a home project & this one has been worth the wait! Before & after of my master bathroom."',
+   why:'The anticipation build ("been awhile... worth the wait") is a proven hook formula. 26K likes on a personal reveal shows authenticity beats polish consistently. The trending audio "Can we skip to the good part" is perfectly matched. Real homeowners sharing real transformations outperform staged content every time.',
+   adapt:'When a project takes longer than expected, use this exact hook: "This bathroom took 9 days instead of 7 — wait until you see why it was worth every extra hour." The wait + payoff formula is reliable on both TikTok and Reels.',
+   search:'casamrtn tiktok master bathroom before after'},
+  {id:'r6',p:'tk',t:'co',account:'@lorenkreiss',platform_label:'TikTok',
+   url:'https://www.tiktok.com/@lorenkreiss',
+   stats:'Millions of views · TikTok · 2025 bathroom trends',
+   hook:'"2025 interior design trends — here\'s what\'s in and what\'s out (bathroom edition)"',
+   why:'"In vs. out" for home trends is one of the most-saved content types on TikTok. Interior designers using this format consistently hit millions because homeowners desperately want to know if their bathroom is outdated. Triggers the "is my house dated?" anxiety, which drives massive shares and comments.',
+   adapt:'Film "What\'s IN vs. OUT for bathrooms in North Texas in 2025." Large-format tile (IN), small mosaic (OUT), floating vanity (IN), pedestal sink (OUT), frameless glass (IN), shower curtain (OUT). Position yourself as the Collin County expert who knows the local market.',
+   search:'lorenkreiss tiktok bathroom trends 2025 in out'},
+  {id:'r7',p:'reels',t:'bts',account:'@realiferenovation — Alex | Real Life Renovation',platform_label:'TikTok / Reels',
+   url:'https://www.tiktok.com/@realiferenovation',
+   stats:'612K followers · 6.5M total likes · 216K on single video',
+   hook:'"here\'s what a DIY home renovation is ACTUALLY like 💪"',
+   why:'612K followers built on raw, unfiltered renovation reality. The "ACTUALLY like" hook triggers curiosity from everyone who\'s wondered what renovation really looks like vs. HGTV. No professional production — just a phone and honest documentation. Alex is a regular dad, which makes people trust him. You\'re a professional — that makes your version even more credible.',
+   adapt:'Make "What a REAL bathroom remodel in McKinney is ACTUALLY like." Show the dusty demo, cement board going up, the one tile that had to be redone. Don\'t hide the work — show it. Homeowners trust contractors who show reality, not just glossy final reveals.',
+   search:'realiferenovation tiktok renovation actually like'},
+  {id:'r8',p:'tk',t:'ba',account:'@ktmcardles.0179118',platform_label:'TikTok',
+   url:'https://www.tiktok.com/@ktmcardles.0179118',
+   stats:'100.4K likes · 621 comments · TikTok',
+   hook:'"Kitchen remodel at my friend\'s house Part 1 — I helped find my friend a house and she asked if I could help remodel her kitchen!"',
+   why:'The personal relationship element ("for a friend") makes it feel human not transactional. 100K likes from a contractor helping someone they know. Proves the "real person behind the business" angle converts at massive scale. The Part 1 cliffhanger drives follows and saves organically.',
+   adapt:'Next time you do a project for a neighbor, friend, or repeat client in McKinney — lead with the relationship. "Our neighbor in Allen has been a client twice. This is what we did for project number three." People hire people they trust.',
+   search:'ktmcardles tiktok kitchen remodel friend house'}
+];
+
+let inspoFilter='all';
+let inspoAddP='tk', inspoAddT='ba', inspoEditId=null;
+
+const INSPO_PLAT_CLS={tk:'t-tk',ig:'t-ig',reels:'t-ig',fb:'t-fb'};
+const INSPO_PLAT_LABELS={tk:'TikTok',ig:'Instagram',reels:'Reels',fb:'Facebook'};
+const INSPO_TYPE_CLS={ba:'t-ba',ed:'t-ed',co:'t-co',tr:'t-tr',bts:'t-be',vi:'t-tr'};
+const INSPO_TYPE_LABELS={ba:'Before/after',ed:'Educational',co:'Cost/value',tr:'Trust/proof',bts:'Behind scenes',vi:'Hook/viral'};
+const INSPO_TYPE_IC={ba:'📸',ed:'💡',co:'💰',tr:'⭐',bts:'🔨',vi:'🎣'};
+
+function setInspoFilter(f){
+  inspoFilter=f;
+  document.querySelectorAll('#inspo-filters .fc').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
+  renderInspo();
+}
+
+function renderInspo(){
+  const fd=S.inspo.filter(i=>{
+    if(inspoFilter==='all')return true;
+    if(inspoFilter==='tk')return i.p==='tk';
+    if(inspoFilter==='ig')return i.p==='ig'||i.p==='reels';
+    return i.t===inspoFilter;
+  });
+  const grid=document.getElementById('inspo-grid');if(!grid)return;
+  if(!fd.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-ic">✦</div>No posts in this filter.</div>';return;}
+  grid.innerHTML=fd.map(p=>{
+    const pc=INSPO_PLAT_CLS[p.p]||'t-ig';
+    const pl=p.platform_label||(INSPO_PLAT_LABELS[p.p]||p.p);
+    const tc=INSPO_TYPE_CLS[p.t]||'t-ed';
+    const tl=INSPO_TYPE_LABELS[p.t]||p.t;
+    const ti=INSPO_TYPE_IC[p.t]||'💡';
+    const isCustom=p.id.startsWith('c');
+    const curatedBadge=isCustom?'':'<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--goldbg);color:var(--gold);border:1px solid var(--goldbdr)">✦ Curated</span>';
+    const editBtns=isCustom
+      ?'<button class="ib" onclick="event.stopPropagation();editInspo(\''+p.id+'\')">Edit</button><button class="ib" style="color:var(--ttrt)" onclick="event.stopPropagation();deleteInspo(\''+p.id+'\')">Del</button>'
+      :'';
+    return '<div style="background:var(--w);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:box-shadow .15s" onclick="openInspoDet(\''+p.id+'\')" onmouseover="this.style.boxShadow=\'0 4px 20px rgba(0,0,0,.08)\'" onmouseout="this.style.boxShadow=\'\'">'
+      +'<div style="padding:13px 16px 11px;border-bottom:1px solid var(--bd)">'
+        +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap">'
+          +'<span class="tag '+pc+'">'+pl+'</span>'
+          +'<span class="tag '+tc+'">'+ti+' '+tl+'</span>'
+          +curatedBadge
+          +'<span style="margin-left:auto;font-size:11px;color:var(--t3);font-style:italic">'+esc(p.account)+'</span>'
+        +'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:var(--navy);background:var(--goldbg);padding:5px 10px;border-radius:7px;border:1px solid var(--goldbdr)">📊 '+esc(p.stats)+'</div>'
+      +'</div>'
+      +'<div style="padding:12px 16px 10px">'
+        +'<div style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Hook</div>'
+        +'<div style="font-size:12px;color:var(--navy);font-style:italic;line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">&ldquo;'+esc(p.hook)+'&rdquo;</div>'
+        +'<div style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Why it works</div>'
+        +'<div style="font-size:11px;color:var(--t2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">'+esc(p.why)+'</div>'
+      +'</div>'
+      +'<div style="padding:0 16px 12px">'
+        +'<div style="font-size:9px;font-weight:700;color:var(--tbat);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">↗ Adapt for NVHR</div>'
+        +'<div style="font-size:11px;color:var(--t1);font-weight:500;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+esc(p.adapt)+'</div>'
+      +'</div>'
+      +'<div style="padding:9px 16px;border-top:1px solid var(--bd);background:var(--bg);display:flex;align-items:center;justify-content:space-between" onclick="event.stopPropagation()">'
+        +'<div id="inspo-link-'+p.id+'" style="display:flex;align-items:center;gap:6px"></div>'
+        +'<div style="display:flex;gap:5px">'+editBtns+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  // Inject real <a> tags after DOM renders — only way to get links working in Claude.ai
+  setTimeout(function(){
+    fd.forEach(function(p){
+      const wrap=document.getElementById('inspo-link-'+p.id);
+      if(!wrap)return;
+      const videoUrl=p.videoUrl||p.url||'';
+      if(videoUrl&&videoUrl.startsWith('http')){
+        const a=document.createElement('a');
+        a.href=videoUrl;
+        a.target='_blank';
+        a.rel='noopener noreferrer';
+        a.textContent='▶ Open video';
+        a.style.cssText='font-size:11px;font-weight:700;color:#fff;background:#0e1b2e;padding:5px 13px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:4px';
+        wrap.appendChild(a);
+      } else {
+        const btn=document.createElement('button');
+        btn.textContent='🔍 Find on TikTok/IG';
+        btn.style.cssText='font-size:11px;font-weight:600;color:#0e1b2e;background:none;border:none;cursor:pointer;padding:0;font-family:inherit';
+        btn.onclick=function(e){e.stopPropagation();showInspoSearch(p.id);};
+        wrap.appendChild(btn);
+      }
+    });
+  },30);
+}
+
+function showInspoSearch(id){
+  const p=S.inspo.find(i=>i.id===id);if(!p)return;
+  let box=document.getElementById('inspo-search-popup');
+  if(!box){box=document.createElement('div');box.id='inspo-search-popup';box.style.cssText='position:fixed;inset:0;background:rgba(14,27,46,.5);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)';box.addEventListener('click',function(e){if(e.target===box)box.remove();});document.body.appendChild(box);}
+  const url=p.url||p.videoUrl||'';
+  const searchVal=(p.search||p.account||'').replace(/"/g,'&quot;');
+  box.innerHTML='<div style="background:#fff;border-radius:14px;padding:26px;width:480px;max-width:94vw;box-shadow:0 8px 40px rgba(0,0,0,.22)">'
+    +'<div style="font-size:16px;font-weight:700;color:#0e1b2e;margin-bottom:4px">'+esc(p.account)+'</div>'
+    +'<div style="font-size:12px;color:#9aa3b0;margin-bottom:18px">'+esc(p.stats)+'</div>'
+    +(url
+      ?'<div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;color:#9aa3b0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Direct link</div>'
+        +'<div id="inspo-popup-link" style="margin-bottom:10px"></div>'
+        +'<div style="font-size:11px;font-family:monospace;color:#0e1b2e;background:#fdf8ee;padding:8px 10px;border-radius:6px;border:1px solid #e8d48a;word-break:break-all">'+esc(url)+'</div>'
+        +'</div>'
+      :'')
+    +'<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:#9aa3b0;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">Search on TikTok / Instagram</div>'
+    +'<input id="inspo-search-input" value="'+searchVal+'" readonly style="width:100%;padding:9px 12px;border:1px solid #dde1e9;border-radius:8px;font-size:12px;color:#0e1b2e;background:#f4f5f7;font-family:monospace;outline:none" onclick="this.select()" onfocus="this.select()">'
+    +'<div style="font-size:11px;color:#9aa3b0;margin-top:5px">Select all → copy → paste into TikTok or Instagram search</div></div>'
+    +'<div style="background:#eef2fb;border-radius:8px;padding:10px 13px;margin-bottom:16px;font-size:11px;color:#1a3f7a;line-height:1.6"><strong>TikTok:</strong> Search → paste handle → tap creator → sort by Most Liked<br><strong>Instagram:</strong> Search → Accounts → find handle</div>'
+    +'<div style="display:flex;justify-content:center"><button onclick="document.getElementById(\'inspo-search-popup\').remove()" style="padding:9px 28px;background:#0e1b2e;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Close</button></div>'
+    +'</div>';
+  // Inject real <a> after render
+  setTimeout(function(){
+    const linkWrap=document.getElementById('inspo-popup-link');
+    if(linkWrap&&url){
+      const a=document.createElement('a');
+      a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+      a.textContent='▶ Open video / profile';
+      a.style.cssText='display:inline-flex;align-items:center;padding:9px 18px;background:#0e1b2e;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;font-family:inherit';
+      linkWrap.appendChild(a);
+    }
+    const inp=document.getElementById('inspo-search-input');
+    if(inp){inp.focus();inp.select();}
+  },30);
+}
+
+
+function openInspoDet(id){
+  const p=S.inspo.find(i=>i.id===id);if(!p)return;
+  const pc=INSPO_PLAT_CLS[p.p]||'t-ig';
+  const pl=p.platform_label||(INSPO_PLAT_LABELS[p.p]||p.p);
+  const tc=INSPO_TYPE_CLS[p.t]||'t-ed';
+  const tl=INSPO_TYPE_LABELS[p.t]||p.t;
+  const ti=INSPO_TYPE_IC[p.t]||'💡';
+  const isCustom=p.id.startsWith('c');
+  const editBtns=isCustom
+    ?'<button class="btn" onclick="editInspo(\''+p.id+'\');closeInspoDet()">Edit</button>'
+     +'<button class="btn" style="color:var(--ttrt);border-color:var(--ttr)" onclick="deleteInspo(\''+p.id+'\');closeInspoDet()">Delete</button>'
+    :'';
+  document.getElementById('inspo-det-body').innerHTML=
+    '<div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center">'
+      +'<span class="tag '+pc+'">'+pl+'</span><span class="tag '+tc+'">'+ti+' '+tl+'</span>'
+      +'<span style="font-size:12px;color:var(--t3);margin-left:auto">'+esc(p.account)+'</span>'
+    +'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:var(--navy);background:var(--goldbg);padding:8px 13px;border-radius:8px;border:1px solid var(--goldbdr);margin-bottom:14px">📊 '+esc(p.stats)+'</div>'
+    +'<div style="font-size:14px;font-style:italic;color:var(--navy);line-height:1.55;padding:10px 13px;background:var(--bg);border-radius:var(--r);border-left:3px solid var(--gold);margin-bottom:16px">&ldquo;'+esc(p.hook)+'&rdquo;</div>'
+    +'<div style="margin-bottom:14px">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">Why it\'s working</div>'
+      +'<div style="font-size:13px;color:var(--t2);line-height:1.7;background:var(--bg);padding:12px 14px;border-radius:var(--r);border:1px solid var(--bd)">'+esc(p.why)+'</div>'
+    +'</div>'
+    +'<div style="margin-bottom:16px;padding:14px;background:#f0faf4;border-radius:var(--r);border:1px solid #b8ddc8">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--tbat);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">&#8599; How to adapt for NVHR</div>'
+      +'<div style="font-size:13px;color:var(--t1);line-height:1.7;font-weight:500">'+esc(p.adapt)+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;padding-top:13px;border-top:1px solid var(--bd);flex-wrap:wrap;align-items:center" id="inspo-det-actions">'
+      +'<button class="btn btn-dk" onclick="showInspoSearch(\''+p.id+'\');closeInspoDet()">&#128279; Open / find post</button>'
+      +editBtns
+      +'<button class="btn" style="margin-left:auto" onclick="closeInspoDet()">Close</button>'
+    +'</div>';
+  document.getElementById('inspo-det-ov').classList.add('on');
+}
+function closeInspoDet(){document.getElementById('inspo-det-ov').classList.remove('on');}
+
+function openInspoAdd(id){
+  inspoEditId=id||null;
+  const p=id?S.inspo.find(i=>i.id===id):null;
+  document.getElementById('inspo-add-title').textContent=p?'Edit post':'Add a post for inspiration';
+  document.getElementById('inspo-add-url').value=p?(p.url||p.videoUrl||''):'';
+  document.getElementById('inspo-add-account').value=p?p.account:'';
+  document.getElementById('inspo-add-stats').value=p?p.stats:'';
+  document.getElementById('inspo-add-why').value=p?p.why:'';
+  document.getElementById('inspo-add-adapt').value=p?p.adapt:'';
+  inspoAddP=p?p.p:'tk';inspoAddT=p?p.t:'ba';
+  document.querySelectorAll('#inspo-add-plats .plat-opt').forEach(o=>o.classList.toggle('sel',o.dataset.p===inspoAddP));
+  document.querySelectorAll('#inspo-add-types .type-opt').forEach(o=>o.classList.toggle('sel',o.dataset.t===inspoAddT));
+  document.getElementById('inspo-add-ov').classList.add('on');
+  setTimeout(()=>document.getElementById('inspo-add-url').focus(),80);
+}
+function closeInspoAdd(){document.getElementById('inspo-add-ov').classList.remove('on');inspoEditId=null;}
+function selInspoAddP(e){document.querySelectorAll('#inspo-add-plats .plat-opt').forEach(o=>o.classList.remove('sel'));e.currentTarget.classList.add('sel');inspoAddP=e.currentTarget.dataset.p;}
+function selInspoAddT(e){document.querySelectorAll('#inspo-add-types .type-opt').forEach(o=>o.classList.remove('sel'));e.currentTarget.classList.add('sel');inspoAddT=e.currentTarget.dataset.t;}
+function saveInspoAdd(){
+  const videoUrl=document.getElementById('inspo-add-url').value.trim();
+  const account=document.getElementById('inspo-add-account').value.trim();
+  if(!videoUrl&&!account){toast('Please add a video link or account name');return;}
+  const entry={
+    id:inspoEditId||('c'+Date.now()),p:inspoAddP,t:inspoAddT,
+    account:account||(videoUrl?'(no account name)':''),
+    videoUrl,url:videoUrl,
+    platform_label:INSPO_PLAT_LABELS[inspoAddP]||inspoAddP,
+    stats:document.getElementById('inspo-add-stats').value.trim(),
+    hook:account||(videoUrl?'Custom post':''),
+    why:document.getElementById('inspo-add-why').value.trim(),
+    adapt:document.getElementById('inspo-add-adapt').value.trim(),
+    search:account
+  };
+  if(inspoEditId){const idx=S.inspo.findIndex(i=>i.id===inspoEditId);if(idx>-1)S.inspo[idx]=entry;}
+  else{S.inspo.unshift(entry);}
+  closeInspoAdd();renderInspo();toast(inspoEditId?'Updated ✓':'Post saved ✓');
+}
+function editInspo(id){openInspoAdd(id);}
+function deleteInspo(id){
+  if(!confirm('Delete this reference?'))return;
+  S.inspo=S.inspo.filter(i=>i.id!==id);
+  renderInspo();toast('Deleted');
+}
+
+
+// ── UTILS ─────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+let _tt;
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),2200);}
+['pm-ov','det-ov','idea-ov','itc-ov','inspo-add-ov','inspo-det-ov'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget){if(id==='pm-ov')closePM();else if(id==='det-ov')closeDet();else if(id==='itc-ov')closeITC();else if(id==='inspo-add-ov')closeInspoAdd();else if(id==='inspo-det-ov')closeInspoDet();else closeIdea();}});});
+
+// ── LOCALSTORAGE — auto save & load ──────────────
+const LS_KEY='nvhr_dashboard_v1';
+
+function lsSave(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      ideas: S.ideas,
+      cal: S.cal.data,
+      calM: S.cal.m,
+      calY: S.cal.y,
+      inspo: S.inspo
+    }));
+    // Show tiny save indicator
+    let ind=document.getElementById('ls-ind');
+    if(!ind){
+      ind=document.createElement('div');
+      ind.id='ls-ind';
+      ind.style.cssText='position:fixed;bottom:22px;right:22px;background:#1a6b35;color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:99px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:400';
+      document.body.appendChild(ind);
+    }
+    ind.textContent='✓ Saved';
+    ind.style.opacity='1';
+    clearTimeout(ind._t);
+    ind._t=setTimeout(()=>ind.style.opacity='0',1500);
+  }catch(e){console.warn('Save failed — localStorage may be blocked:',e);}
+}
+
+function lsLoad(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw)return false;
+    const saved=JSON.parse(raw);
+    // Only override defaults if saved data exists and has content
+    if(saved.ideas&&Array.isArray(saved.ideas)&&saved.ideas.length>0){
+      S.ideas=saved.ideas;
+    }
+    if(saved.cal&&typeof saved.cal==='object'){
+      S.cal.data=saved.cal;
+    }
+    if(saved.calM!=null) S.cal.m=saved.calM;
+    if(saved.calY!=null) S.cal.y=saved.calY;
+    if(saved.inspo&&Array.isArray(saved.inspo)&&saved.inspo.length>0){
+      S.inspo=saved.inspo;
+    }
+    return true;
+  }catch(e){console.warn('Load failed:',e);return false;}
+}
+
+// Patch all mutating functions to auto-save after every change
+const _origSaveIdea=saveIdea;
+saveIdea=function(){_origSaveIdea();lsSave();};
+
+const _origDelIdea=delIdea;
+delIdea=function(id){_origDelIdea(id);lsSave();};
+
+const _origMarkUsed=markUsed;
+markUsed=function(id){_origMarkUsed(id);lsSave();};
+
+const _origSavePost=savePost;
+savePost=function(){_origSavePost();lsSave();};
+
+const _origRmPost=rmPost;
+rmPost=function(k,d,idx){_origRmPost(k,d,idx);lsSave();};
+
+const _origConfirmITC=confirmITC;
+confirmITC=function(){_origConfirmITC();lsSave();};
+
+const _origSaveCaption=saveCaption;
+saveCaption=function(id){_origSaveCaption(id);lsSave();};
+
+const _origSaveChecklist=saveChecklist;
+saveChecklist=function(id){_origSaveChecklist(id);lsSave();};
+
+const _origSaveNotes=saveNotes;
+saveNotes=function(id){_origSaveNotes(id);lsSave();};
+
+const _origSaveDetBody=saveDetBody;
+saveDetBody=function(){_origSaveDetBody();lsSave();};
+
+const _origSaveDetScript=saveDetScript;
+saveDetScript=function(){_origSaveDetScript();lsSave();};
+
+const _origSaveDetChk=saveDetChk;
+saveDetChk=function(){_origSaveDetChk();lsSave();};
+
+const _origSaveInspoAdd=saveInspoAdd;
+saveInspoAdd=function(){_origSaveInspoAdd();lsSave();};
+
+const _origDeleteInspo=deleteInspo;
+deleteInspo=function(id){_origDeleteInspo(id);lsSave();};
+
+const _origCloseIdea=closeIdea;
+closeIdea=function(){_origCloseIdea();lsSave();};
+
+const _origEditIdeaDrive=editIdeaDrive;
+editIdeaDrive=function(id){_origEditIdeaDrive(id);lsSave();};
+
+const _origEditPDrive=editPDrive;
+editPDrive=function(){_origEditPDrive();lsSave();};
+
+const _origQkDrive=qkDrive;
+qkDrive=function(id){_origQkDrive(id);lsSave();};
+
+// ── INIT ──────────────────────────────────────────
+// Load saved data first, then render
+const hadSaved=lsLoad();
+document.getElementById('today-lbl').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+buildRTE('rte-add-bar','rte-add-body','rte-add-cnt');
+buildRTE('rte-pm-bar','rte-pm-body','rte-pm-cnt');
+updOv();
+if(hadSaved) toast('✓ Data loaded from last session');
+
+// Auto-save every 2 seconds — catches everything including typing in progress
+setInterval(function(){
+  // Capture any open RTE editors before saving
+  document.querySelectorAll('[id^="rte-cap-"],[id^="rte-chk-"],[id^="rte-note-"]').forEach(function(el){
+    const parts=el.id.split('-');
+    const field=parts[1];
+    const id=parseInt(parts[parts.length-1]);
+    if(!id||isNaN(id))return;
+    const idea=S.ideas.find(function(i){return i.id===id;});
+    if(!idea)return;
+    if(field==='cap') idea.captionEdited=el.innerHTML;
+    else if(field==='chk') idea.checklistEdited=el.innerHTML;
+    else if(field==='note') idea.notes=el.innerHTML;
+  });
+  // Capture open calendar post editors
+  const detBody=document.getElementById('rte-det-body');
+  const detScript=document.getElementById('rte-det-script');
+  const detChk=document.getElementById('rte-det-chk');
+  if(S.vp&&detBody){
+    const post=S.cal.data[S.vp.k]&&S.cal.data[S.vp.k][S.vp.d]&&S.cal.data[S.vp.k][S.vp.d][S.vp.idx];
+    if(post){
+      if(detBody.innerHTML) post.body=detBody.innerHTML;
+      if(detScript&&detScript.innerHTML) post.script=detScript.innerHTML;
+      if(detChk&&detChk.innerHTML) post.checklist=detChk.innerHTML;
+    }
+  }
+  lsSave();
+},2000);
+
+// Also save when user leaves the page (tab close, navigate away)
+window.addEventListener('beforeunload',function(){
+  lsSave();
+});
+</script>
+</body>
+</html>
