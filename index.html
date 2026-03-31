@@ -2276,5 +2276,69 @@ buildRTE('rte-add-bar','rte-add-body','rte-add-cnt');
 buildRTE('rte-pm-bar','rte-pm-body','rte-pm-cnt');
 updOv();
 </script>
+<script>
+// ======================
+// NVHR STORAGE SYSTEM
+// ======================
+
+let ideas = JSON.parse(localStorage.getItem('nvhr_ideas')) || [];
+
+function saveIdeas() {
+  localStorage.setItem('nvhr_ideas', JSON.stringify(ideas));
+}
+
+function renderIdeas() {
+  const container = document.getElementById("ideas-container");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  ideas.forEach((idea, index) => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong>${idea.title}</strong><br>
+          <span style="color:#666">${idea.desc}</span>
+        </div>
+        <button class="btn btn-sm" onclick="deleteIdea(${index})">Delete</button>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function addIdea() {
+  const title = document.getElementById("idea-title").value;
+  const desc = document.getElementById("idea-desc").value;
+
+  if (!title) {
+    alert("Add a title");
+    return;
+  }
+
+  ideas.push({ title, desc });
+
+  saveIdeas();
+  renderIdeas();
+
+  document.getElementById("idea-title").value = "";
+  document.getElementById("idea-desc").value = "";
+}
+
+function deleteIdea(index) {
+  ideas.splice(index, 1);
+  saveIdeas();
+  renderIdeas();
+}
+
+window.addEventListener("load", () => {
+  renderIdeas();
+});
+</script>
+
 </body>
 </html>
